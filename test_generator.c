@@ -73,7 +73,7 @@
 // #define BDF_FORMAT
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int i, j,
       hdl,

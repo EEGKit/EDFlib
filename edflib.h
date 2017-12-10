@@ -602,6 +602,20 @@ int edf_set_datarecord_duration(int handle, int duration);
 /* or set the samplefrequency to 1 Hz and the datarecord duration to 2 seconds. */
 /* Do not use this function, except when absolutely necessary! */
 
+int edf_set_micro_datarecord_duration(int handle, int duration);
+
+/* Sets the datarecord duration to a very small value. */
+/* ATTENTION: the argument "duration" is expressed in units of 1 microSecond! */
+/* This function is optional, normally you don't need to change the default value. */
+/* The datarecord duration must be in the range 1 to 99 micro-seconds. */
+/* Returns 0 on success, otherwise -1 */
+/* This function is NOT REQUIRED but can be called after opening a */
+/* file in writemode and before the first sample write action. */
+/* This function can be used when you want to use a very high samplerate. */
+/* For example, if you want to use a samplerate of 5 GHz, */
+/* set the samplefrequency to 5000 Hz and the datarecord duration to 1 micro-second. */
+/* Do not use this function, except when absolutely necessary! */
+
 int edf_set_number_of_annotation_signals(int handle, int annot_signals);
 
 /* Sets the number of annotation signals. The default value is 1 */

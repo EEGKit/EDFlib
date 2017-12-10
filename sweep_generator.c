@@ -51,7 +51,7 @@ void remove_trailing_zeros(char *);
 
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int i, j,
       hdl,
