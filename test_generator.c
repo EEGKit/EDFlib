@@ -31,21 +31,21 @@
 /*
   this program generates an EDFplus or BDFplus testfile with the following signals:
 
- signal label/waveform  amplitude    f       sf
- ---------------------------------------------------
-    1    squarewave        100 uV    0.1Hz   200 Hz
-    2    ramp              100 uV    1 Hz    200 Hz
-    3    pulse 1           100 uV    1 Hz    200 Hz
-    4    pulse 2           100 uV    1 Hz    256 Hz
-    5    pulse 3           100 uV    1 Hz    217 Hz
-    6    noise             100 uV    - Hz    200 Hz
-    7    sine 1 Hz         100 uV    1 Hz    200 Hz
-    8    sine 8 Hz         100 uV    8 Hz    200 Hz
-    9    sine 8.1777 Hz    100 uV    8.25 Hz 200 Hz
-   10    sine 8.5 Hz       100 uV    8.5Hz   200 Hz
-   11    sine 15 Hz        100 uV   15 Hz    200 Hz
-   12    sine 17 Hz        100 uV   17 Hz    200 Hz
-   13    sine 50 Hz        100 uV   50 Hz    200 Hz
+ signal label/waveform     amplitude    f       sf
+ ------------------------------------------------------
+    1    squarewave           100 uV    0.1Hz   200 Hz
+    2    ramp                 100 uV    1 Hz    200 Hz
+    3    pulse 1              100 uV    1 Hz    200 Hz
+    4    pulse 2              100 uV    1 Hz    256 Hz
+    5    pulse 3              100 uV    1 Hz    217 Hz
+    6    noise                100 uV    - Hz    200 Hz
+    7    sine 1 Hz            100 uV    1 Hz    200 Hz
+    8    sine 8 Hz + DC       100 uV    8 Hz    200 Hz
+    9    sine 8.1777 Hz + DC  100 uV    8.25 Hz 200 Hz
+   10    sine 8.5 Hz          100 uV    8.5Hz   200 Hz
+   11    sine 15 Hz           100 uV   15 Hz    200 Hz
+   12    sine 17 Hz           100 uV   17 Hz    200 Hz
+   13    sine 50 Hz           100 uV   50 Hz    200 Hz
    14    DC event 8-bits code 1 V   100 mS/bit  200 Hz
 
 */
@@ -323,14 +323,14 @@ int main(void)
     return(1);
   }
 
-  if(edf_set_label(hdl, i++, "sine 8 Hz"))
+  if(edf_set_label(hdl, i++, "sine 8 Hz + DC"))
   {
     printf("error: edf_set_label()\n");
 
     return(1);
   }
 
-  if(edf_set_label(hdl, i++, "sine 8.1777 Hz"))
+  if(edf_set_label(hdl, i++, "sine 8.1777 Hz + DC"))
   {
     printf("error: edf_set_label()\n");
 

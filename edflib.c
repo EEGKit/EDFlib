@@ -3910,8 +3910,6 @@ int edfwrite_digital_short_samples(int handle, short *buf)
        edfsignal,
        value;
 
-  char *ptr;
-
   FILE *file;
 
   struct edfhdrblock *hdr;
@@ -3999,14 +3997,16 @@ int edfwrite_digital_short_samples(int handle, short *buf)
   {
     if(hdr->wrbufsize < (sf * 3))
     {
-      ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+      free(hdr->wrbuf);
 
-      if(ptr == NULL)
+      hdr->wrbufsize = 0;
+
+      hdr->wrbuf = (char *)malloc(sf * 3);
+
+      if(hdr->wrbuf == NULL)
       {
         return -1;
       }
-
-      hdr->wrbuf = ptr;
 
       hdr->wrbufsize = sf * 3;
     }
@@ -4068,8 +4068,6 @@ int edfwrite_digital_samples(int handle, int *buf)
        edfsignal,
        value;
 
-  char *ptr;
-
   FILE *file;
 
   struct edfhdrblock *hdr;
@@ -4129,14 +4127,16 @@ int edfwrite_digital_samples(int handle, int *buf)
   {
     if(hdr->wrbufsize < (sf * 2))
     {
-      ptr = (char *)realloc(hdr->wrbuf, sf * 2);
+      free(hdr->wrbuf);
 
-      if(ptr == NULL)
+      hdr->wrbufsize = 0;
+
+      hdr->wrbuf = (char *)malloc(sf * 2);
+
+      if(hdr->wrbuf == NULL)
       {
         return -1;
       }
-
-      hdr->wrbuf = ptr;
 
       hdr->wrbufsize = sf * 2;
     }
@@ -4169,14 +4169,16 @@ int edfwrite_digital_samples(int handle, int *buf)
   {
     if(hdr->wrbufsize < (sf * 3))
     {
-      ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+      free(hdr->wrbuf);
 
-      if(ptr == NULL)
+      hdr->wrbufsize = 0;
+
+      hdr->wrbuf = (char *)malloc(sf * 3);
+
+      if(hdr->wrbuf == NULL)
       {
         return -1;
       }
-
-      hdr->wrbuf = ptr;
 
       hdr->wrbufsize = sf * 3;
     }
@@ -4238,8 +4240,6 @@ int edf_blockwrite_digital_samples(int handle, int *buf)
        edfsignals,
        buf_offset,
        value;
-
-  char *ptr;
 
   FILE *file;
 
@@ -4306,14 +4306,16 @@ int edf_blockwrite_digital_samples(int handle, int *buf)
     {
       if(hdr->wrbufsize < (sf * 2))
       {
-        ptr = (char *)realloc(hdr->wrbuf, sf * 2);
+        free(hdr->wrbuf);
 
-        if(ptr == NULL)
+        hdr->wrbufsize = 0;
+
+        hdr->wrbuf = (char *)malloc(sf * 2);
+
+        if(hdr->wrbuf == NULL)
         {
           return -1;
         }
-
-        hdr->wrbuf = ptr;
 
         hdr->wrbufsize = sf * 2;
       }
@@ -4346,14 +4348,16 @@ int edf_blockwrite_digital_samples(int handle, int *buf)
     {
       if(hdr->wrbufsize < (sf * 3))
       {
-        ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+        free(hdr->wrbuf);
 
-        if(ptr == NULL)
+        hdr->wrbufsize = 0;
+
+        hdr->wrbuf = (char *)malloc(sf * 3);
+
+        if(hdr->wrbuf == NULL)
         {
           return -1;
         }
-
-        hdr->wrbuf = ptr;
 
         hdr->wrbufsize = sf * 3;
       }
@@ -4411,8 +4415,6 @@ int edf_blockwrite_digital_short_samples(int handle, short *buf)
        edfsignals,
        buf_offset,
        value;
-
-  char *ptr;
 
   FILE *file;
 
@@ -4507,14 +4509,16 @@ int edf_blockwrite_digital_short_samples(int handle, short *buf)
     {
       if(hdr->wrbufsize < (sf * 3))
       {
-        ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+        free(hdr->wrbuf);
 
-        if(ptr == NULL)
+        hdr->wrbufsize = 0;
+
+        hdr->wrbuf = (char *)malloc(sf * 3);
+
+        if(hdr->wrbuf == NULL)
         {
           return -1;
         }
-
-        hdr->wrbuf = ptr;
 
         hdr->wrbufsize = sf * 3;
       }
@@ -4658,8 +4662,6 @@ int edfwrite_physical_samples(int handle, double *buf)
        value,
        edfsignal;
 
-  char *ptr;
-
   double bitvalue,
          phys_offset;
 
@@ -4726,14 +4728,16 @@ int edfwrite_physical_samples(int handle, double *buf)
   {
     if(hdr->wrbufsize < (sf * 2))
     {
-      ptr = (char *)realloc(hdr->wrbuf, sf * 2);
+      free(hdr->wrbuf);
 
-      if(ptr == NULL)
+      hdr->wrbufsize = 0;
+
+      hdr->wrbuf = (char *)malloc(sf * 2);
+
+      if(hdr->wrbuf == NULL)
       {
         return -1;
       }
-
-      hdr->wrbuf = ptr;
 
       hdr->wrbufsize = sf * 2;
     }
@@ -4766,14 +4770,16 @@ int edfwrite_physical_samples(int handle, double *buf)
   {
     if(hdr->wrbufsize < (sf * 3))
     {
-      ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+      free(hdr->wrbuf);
 
-      if(ptr == NULL)
+      hdr->wrbufsize = 0;
+
+      hdr->wrbuf = (char *)malloc(sf * 3);
+
+      if(hdr->wrbuf == NULL)
       {
         return -1;
       }
-
-      hdr->wrbuf = ptr;
 
       hdr->wrbufsize = sf * 3;
     }
@@ -4835,8 +4841,6 @@ int edf_blockwrite_physical_samples(int handle, double *buf)
        edfsignals,
        buf_offset,
        value;
-
-  char *ptr;
 
   double bitvalue,
          phys_offset;
@@ -4910,14 +4914,16 @@ int edf_blockwrite_physical_samples(int handle, double *buf)
     {
       if(hdr->wrbufsize < (sf * 2))
       {
-        ptr = (char *)realloc(hdr->wrbuf, sf * 2);
+        free(hdr->wrbuf);
 
-        if(ptr == NULL)
+        hdr->wrbufsize = 0;
+
+        hdr->wrbuf = (char *)malloc(sf * 2);
+
+        if(hdr->wrbuf == NULL)
         {
           return -1;
         }
-
-        hdr->wrbuf = ptr;
 
         hdr->wrbufsize = sf * 2;
       }
@@ -4950,14 +4956,16 @@ int edf_blockwrite_physical_samples(int handle, double *buf)
     {
       if(hdr->wrbufsize < (sf * 3))
       {
-        ptr = (char *)realloc(hdr->wrbuf, sf * 3);
+        free(hdr->wrbuf);
 
-        if(ptr == NULL)
+        hdr->wrbufsize = 0;
+
+        hdr->wrbuf = (char *)malloc(sf * 3);
+
+        if(hdr->wrbuf == NULL)
         {
           return -1;
         }
-
-        hdr->wrbuf = ptr;
 
         hdr->wrbufsize = sf * 3;
       }
