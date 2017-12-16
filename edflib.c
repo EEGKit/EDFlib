@@ -3860,7 +3860,7 @@ int edf_set_datarecord_duration(int handle, int duration)
 }
 
 
-int edf_set_micrco_datarecord_duration(int handle, int duration)
+int edf_set_micro_datarecord_duration(int handle, int duration)
 {
   if(handle<0)
   {
