@@ -78,13 +78,14 @@
 #define EDFLIB_READ_ANNOTATIONS        1
 #define EDFLIB_READ_ALL_ANNOTATIONS    2
 
-/* the following defines are possible errors returned by edfopen_file_writeonly() */
+/* the following defines are possible errors returned by the first sample write action */
 #define EDFLIB_NO_SIGNALS                  -20
 #define EDFLIB_TOO_MANY_SIGNALS            -21
 #define EDFLIB_NO_SAMPLES_IN_RECORD        -22
 #define EDFLIB_DIGMIN_IS_DIGMAX            -23
 #define EDFLIB_DIGMAX_LOWER_THAN_DIGMIN    -24
 #define EDFLIB_PHYSMIN_IS_PHYSMAX          -25
+#define EDFLIB_DATARECORD_SIZE_TOO_BIG     -26
 
 
 

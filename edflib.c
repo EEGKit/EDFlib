@@ -459,7 +459,7 @@ int edfclose_file(int handle)
 {
   struct edf_write_annotationblock *annot2;
 
-  int i, j, k, n, p,
+  int i, j, k, n, p, err,
       datrecsize,
       nmemb;
 
@@ -492,9 +492,10 @@ int edfclose_file(int handle)
   {
     if(hdr->datarecords == 0LL)
     {
-      if(edflib_write_edf_header(hdr))
+      err = edflib_write_edf_header(hdr);
+      if(err)
       {
-        return -1;
+        return err;
       }
 
       for(k=0; k<hdr->annots_in_file; k++)
@@ -5035,12 +5036,12 @@ static int edflib_write_edf_header(struct edfhdrblock *hdr)
 
   if(edfsignals<0)
   {
-    return -20;
+    return EDFLIB_NO_SIGNALS;
   }
 
   if(edfsignals>EDFLIB_MAXSIGNALS)
   {
-    return -21;
+    return EDFLIB_TOO_MANY_SIGNALS;
   }
 
   hdr->eq_sf = 1;
@@ -5053,22 +5054,22 @@ static int edflib_write_edf_header(struct edfhdrblock *hdr)
   {
     if(hdr->edfparam[i].smp_per_record<1)
     {
-      return -22;
+      return EDFLIB_NO_SAMPLES_IN_RECORD;
     }
 
     if(hdr->edfparam[i].dig_max==hdr->edfparam[i].dig_min)
     {
-      return -23;
+      return EDFLIB_DIGMIN_IS_DIGMAX;
     }
 
     if(hdr->edfparam[i].dig_max<hdr->edfparam[i].dig_min)
     {
-      return -24;
+      return EDFLIB_DIGMAX_LOWER_THAN_DIGMIN;
     }
 
     if(hdr->edfparam[i].phys_max==hdr->edfparam[i].phys_min)
     {
-      return -25;
+      return EDFLIB_PHYSMIN_IS_PHYSMAX;
     }
 
     hdr->recordsize += hdr->edfparam[i].smp_per_record;
@@ -5088,10 +5089,11 @@ static int edflib_write_edf_header(struct edfhdrblock *hdr)
 
     hdr->recordsize += hdr->total_annot_bytes;
 
-    if(hdr->recordsize > (10 * 1024 * 1024))  /* datarecord size should not exceed 10MB for EDF! */
+    if(hdr->recordsize > (10 * 1024 * 1024))  /* datarecord size should not exceed 10MB for EDF */
     {
-      return -1;  /* if your application gets hit by this limitation, lower the value for the datarecord duration */
-    }             /* using the function edf_set_datarecord_duration() */
+      return EDFLIB_DATARECORD_SIZE_TOO_BIG;
+    }  /* if your application gets hit by this limitation, lower the value for the datarecord duration */
+       /* using the function edf_set_datarecord_duration() */
   }
   else
   {
@@ -5099,10 +5101,11 @@ static int edflib_write_edf_header(struct edfhdrblock *hdr)
 
     hdr->recordsize += hdr->total_annot_bytes;
 
-    if(hdr->recordsize > (15 * 1024 * 1024))  /* datarecord size should not exceed 15MB for BDF! */
+    if(hdr->recordsize > (15 * 1024 * 1024))  /* datarecord size should not exceed 15MB for BDF */
     {
-      return -1;  /* if your application gets hit by this limitation, lower the value for the datarecord duration */
-    }             /* using the function edf_set_datarecord_duration() */
+      return EDFLIB_DATARECORD_SIZE_TOO_BIG;
+    }  /* if your application gets hit by this limitation, lower the value for the datarecord duration */
+       /* using the function edf_set_datarecord_duration() */
   }
 
   for(i=0; i<edfsignals; i++)
