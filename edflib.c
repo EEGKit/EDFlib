@@ -2180,7 +2180,7 @@ static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_erro
   {
     edfhdr->recordsize *= 3;
 
-    if(edfhdr->recordsize > 15728640)
+    if(edfhdr->recordsize > (15 * 1024 * 1024))
     {
       *edf_error = EDFLIB_FILE_CONTAINS_FORMAT_ERRORS;
       free(edf_hdr);
@@ -2193,7 +2193,7 @@ static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_erro
   {
     edfhdr->recordsize *= 2;
 
-    if(edfhdr->recordsize > 10485760)
+    if(edfhdr->recordsize > (10 * 1024 * 1024))
     {
       *edf_error = EDFLIB_FILE_CONTAINS_FORMAT_ERRORS;
       free(edf_hdr);
@@ -3973,7 +3973,7 @@ int edfwrite_digital_short_samples(int handle, short *buf)
 
   if(hdr->edf)
   {
-    if((digmax != 32767) || (digmin != 32768))
+    if((digmax != 32767) || (digmin != -32768))
     {
       for(i=0; i<sf; i++)
       {
@@ -4485,16 +4485,16 @@ int edf_blockwrite_digital_short_samples(int handle, short *buf)
 
     if(hdr->edf)
     {
-      if((digmax != 32767) || (digmin != 32768))
+      if((digmax != 32767) || (digmin != -32768))
       {
         for(i=0; i<sf; i++)
         {
-          if(buf[i + buf_offset]>digmax)
+          if(buf[i + buf_offset] > digmax)
           {
             buf[i + buf_offset] = digmax;
           }
 
-          if(buf[i]<digmin)
+          if(buf[i + buf_offset] < digmin)
           {
             buf[i + buf_offset] = digmin;
           }

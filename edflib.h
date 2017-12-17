@@ -601,7 +601,7 @@ int edf_set_datarecord_duration(int handle, int duration);
 /* which is not an integer. For example, if you want to use a samplerate of 0.5 Hz, */
 /* set the samplefrequency to 5 Hz and the datarecord duration to 10 seconds, */
 /* or set the samplefrequency to 1 Hz and the datarecord duration to 2 seconds. */
-/* Do not use this function, except when absolutely necessary! */
+/* Do not use this function if not necessary. */
 
 int edf_set_micro_datarecord_duration(int handle, int duration);
 
@@ -615,7 +615,7 @@ int edf_set_micro_datarecord_duration(int handle, int duration);
 /* This function can be used when you want to use a very high samplerate. */
 /* For example, if you want to use a samplerate of 5 GHz, */
 /* set the samplefrequency to 5000 Hz and the datarecord duration to 1 micro-second. */
-/* Do not use this function, except when absolutely necessary! */
+/* Do not use this function if not necessary. */
 
 int edf_set_number_of_annotation_signals(int handle, int annot_signals);
 
