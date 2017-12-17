@@ -4155,11 +4155,11 @@ int edfwrite_digital_samples(int handle, int *buf)
       {
         value = digmin;
       }
+
+      hdr->wrbuf[i * 2] = value & 0xff;
+
+      hdr->wrbuf[i * 2 + 1] = (value >> 8) & 0xff;
     }
-
-    hdr->wrbuf[i * 2] = value & 0xff;
-
-    hdr->wrbuf[i * 2 + 1] = (value >> 8) & 0xff;
 
     if(fwrite(hdr->wrbuf, sf * 2, 1, file) != 1)
     {
@@ -4334,11 +4334,11 @@ int edf_blockwrite_digital_samples(int handle, int *buf)
         {
           value = digmin;
         }
+
+        hdr->wrbuf[i * 2] = value & 0xff;
+
+        hdr->wrbuf[i * 2 + 1] = (value >> 8) & 0xff;
       }
-
-      hdr->wrbuf[i * 2] = value & 0xff;
-
-      hdr->wrbuf[i * 2 + 1] = (value >> 8) & 0xff;
 
       if(fwrite(hdr->wrbuf, sf * 2, 1, file) != 1)
       {
