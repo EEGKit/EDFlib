@@ -41,7 +41,7 @@ int main(void)
 {
   int i,
       tmp,
-      hdl,
+      hdl=-1,
       chns=2,
       ibuf[100],
       ival1,
@@ -59,11 +59,15 @@ int main(void)
          dval1,
          dval2;
 
+  struct edf_hdr_struct hdr;
+
+  struct edf_annotation_struct annot;
+
   setlocale(LC_ALL, "C");
 
   if(edflib_version() != 113)  JUMP_TO_EXIT_ERROR_PROC
 
-/********************************** EDF **************************************/
+/********************************** EDF writing ******************************/
 
   hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, chns);
 
@@ -110,6 +114,7 @@ int main(void)
   strcpy(str, "dCxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 176;
+  str[2] = 248;
 
   if(edf_set_physical_dimension(hdl, 1, str))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -137,7 +142,7 @@ int main(void)
 
   if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 6500, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl, 7800, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -224,7 +229,7 @@ int main(void)
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-/********************************** BDF **************************************/
+/********************************** BDF writing ******************************/
 
   hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, chns);
 
@@ -271,6 +276,7 @@ int main(void)
   strcpy(str, "dCxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 176;
+  str[2] = 248;
 
   if(edf_set_physical_dimension(hdl, 1, str))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -375,6 +381,232 @@ int main(void)
   }
 
   if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 7800000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 6)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 120)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].smp_in_file != 138)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].dig_max != 30000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].dig_min != 10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[1].physdimension, " C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 7800000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** BDF reading ******************************/
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 3)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 6500000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 5)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 100)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].smp_in_file != 115)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].dig_max != 3000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].dig_min != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[1].physdimension, " C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 6500000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl))
   {
