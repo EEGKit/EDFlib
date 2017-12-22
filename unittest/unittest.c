@@ -36,6 +36,10 @@
 #define  JUMP_TO_EXIT_ERROR_PROC   {line = __LINE__; goto OUT_ERROR;}
 
 
+int dblcmp(double, double);
+int dblcmp_lim(double, double, double);
+
+
 
 int main(void)
 {
@@ -43,7 +47,7 @@ int main(void)
       tmp,
       hdl=-1,
       chns=2,
-      ibuf[100],
+      ibuf[1000],
       ival1,
       ival2,
       line;
@@ -55,7 +59,7 @@ int main(void)
         sval1,
         sval2;
 
-  double dbuf[100],
+  double dbuf[1000],
          dval1,
          dval2;
 
@@ -495,6 +499,118 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -5000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp(dbuf[i], 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.75))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl, 0);
+
+  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -5000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp(dbuf[i], 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.75))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl, 1);
+
+  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i   %i\n", ibuf[i], -10100 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != -10000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != -10100 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+
+
+
+
+
+
+
+
   if(edfclose_file(hdl))
   {
     hdl = -1;
@@ -628,6 +744,45 @@ OUT_ERROR:
 
   return EXIT_FAILURE;
 }
+
+
+int dblcmp(double val1, double val2)
+{
+  long double diff = (long double)val1 - (long double)val2;
+
+  if(diff > 1e-13)
+  {
+    return 1;
+  }
+  else if(-diff > 1e-13)
+    {
+      return -1;
+    }
+    else
+    {
+      return 0;
+    }
+}
+
+
+int dblcmp_lim(double val1, double val2, double lim)
+{
+  long double diff = (long double)val1 - (long double)val2;
+
+  if(diff > lim)
+  {
+    return 1;
+  }
+  else if(-diff > lim)
+    {
+      return -1;
+    }
+    else
+    {
+      return 0;
+    }
+}
+
 
 
 
