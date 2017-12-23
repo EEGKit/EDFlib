@@ -884,6 +884,210 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -5000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp_lim(dbuf[i], 10000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.0075))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -30000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl, 0);
+
+  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -5000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp_lim(dbuf[i], 10000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.0075))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl, 1);
+
+  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -30000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], -1010000 + (i * 105300));
+
+    if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], 990000 + (i * 105300));
+
+    if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], -1010000 + (i * 105300));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != -1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 1, 69, EDFSEEK_SET) != 69)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], 990000 + (i * 105300));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i >= 20)
+    {
+      if(ibuf[i] != 3000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], -1010000 + (i * 105300));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != -1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %i   %i\n", i, ibuf[i], 990000 + (i * 105300));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i >= 20)
+    {
+      if(ibuf[i] != 3000000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   if(edfclose_file(hdl))
   {
     hdl = -1;
