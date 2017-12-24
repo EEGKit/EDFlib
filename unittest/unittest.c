@@ -1142,6 +1142,218 @@ int main(void)
 
   if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x12e, SEEK_SET);
+
+  fputc('s', fp);
+
+  fseek(fp, 0x1ac, SEEK_SET);
+
+  fputc(181, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x1ac, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x308, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x308, SEEK_SET);
+
+  fputc('-', fp);
+
+  fseek(fp, 0x30d, SEEK_SET);
+
+  fputc(',', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x30d, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x3a5, SEEK_SET);
+
+  fputc('.', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x3a5, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x3bc, SEEK_SET);
+
+  fputc(207, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x3bc, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x40b, SEEK_SET);
+
+  fputc(247, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x40b, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x560, SEEK_SET);
+
+  fputc('a', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x560, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x5ff, SEEK_SET);
+
+  fputc('b', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x5ff, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0x54a, SEEK_SET);
+
+  fputc('.', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x54a, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 0xad, SEEK_SET);
+
+  fputc('-', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xad, SEEK_SET);
+
+  fputc('.', fp);
+
+  fclose(fp);
+
 /********************************** BDF reading ******************************/
 
   if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
