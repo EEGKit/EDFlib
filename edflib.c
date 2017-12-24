@@ -495,6 +495,18 @@ int edfclose_file(int handle)
       err = edflib_write_edf_header(hdr);
       if(err)
       {
+        fclose(hdr->file_hdl);
+
+        free(hdr->edfparam);
+
+        free(hdr->wrbuf);
+
+        free(hdr);
+
+        hdrlist[handle] = NULL;
+
+        edf_files_open--;
+
         return err;
       }
 

@@ -47,7 +47,7 @@ int main(void)
       tmp,
       hdl=-1,
       chns=2,
-      ibuf[1000],
+      ibuf[20000],
       line,
       ival1,
       ival2;
@@ -68,6 +68,37 @@ int main(void)
   if(edflib_version() != 113)  JUMP_TO_EXIT_ERROR_PROC
 
 /********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<512; i++)
+  {
+    if(edf_set_samplefrequency(hdl, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<1000; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl) == 0)
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
 
   hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, chns);
 
