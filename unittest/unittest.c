@@ -63,6 +63,8 @@ int main(void)
 
   struct edf_annotation_struct annot;
 
+  FILE *fp;
+
   setlocale(LC_ALL, "C");
 
   if(edflib_version() != 113)  JUMP_TO_EXIT_ERROR_PROC
@@ -86,7 +88,7 @@ int main(void)
     if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  for(i=0; i<1000; i++)
+  for(i=0; i<10239; i++)
   {
     dbuf[i] = 0;
   }
@@ -117,7 +119,7 @@ int main(void)
     if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  for(i=0; i<1000; i++)
+  for(i=0; i<10240; i++)
   {
     dbuf[i] = 0;
   }
@@ -335,7 +337,7 @@ int main(void)
     if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  for(i=0; i<1000; i++)
+  for(i=0; i<10239; i++)
   {
     dbuf[i] = 0;
   }
@@ -366,7 +368,7 @@ int main(void)
     if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  for(i=0; i<1000; i++)
+  for(i=0; i<10240; i++)
   {
     dbuf[i] = 0;
   }
@@ -1003,6 +1005,142 @@ int main(void)
   }
 
   hdl = -1;
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 1, SEEK_SET);
+
+  fputc('1', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 1, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fseek(fp, 16, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 16, SEEK_SET);
+
+  fputc('0', fp);
+
+  fseek(fp, 0xaa, SEEK_SET);
+
+  fputc(':', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xaa, SEEK_SET);
+
+  fputc('.', fp);
+
+  fseek(fp, 0xab, SEEK_SET);
+
+  fputc('9', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xab, SEEK_SET);
+
+  fputc('1', fp);
+
+  fseek(fp, 0xac, SEEK_SET);
+
+  fputc('q', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xac, SEEK_SET);
+
+  fputc('2', fp);
+
+  fseek(fp, 0xc4, SEEK_SET);
+
+  fputc('D', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_IS_DISCONTINUOUS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xc4, SEEK_SET);
+
+  fputc('C', fp);
+
+  fseek(fp, 0x12e, SEEK_SET);
+
+  fputc(' ', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
 /********************************** BDF reading ******************************/
 
