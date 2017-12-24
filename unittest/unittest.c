@@ -43,25 +43,21 @@ int dblcmp_lim(double, double, double);
 
 int main(void)
 {
-  int i,
+  int i, j,
       tmp,
       hdl=-1,
       chns=2,
       ibuf[1000],
+      line,
       ival1,
-      ival2,
-      line;
+      ival2;
 
   char str[4096]={0,},
        pbuf[300];
 
-  short sbuf[100],
-        sval1,
-        sval2;
+  short sbuf[100];
 
-  double dbuf[1000],
-         dval1,
-         dval2;
+  double dbuf[1000];
 
   struct edf_hdr_struct hdr;
 
@@ -146,7 +142,7 @@ int main(void)
 
   if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 7800, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl, 13000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -225,6 +221,31 @@ int main(void)
   }
 
   if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  ival1 = -10100;
+
+  ival2 = 9900;
+
+  for(j=0; j<4; j++)
+  {
+    for(i=0; i<20; i++)
+    {
+      ibuf[i] = ival1;
+
+      ival1 += 253;
+    }
+
+    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+
+    for(i=0; i<23; i++)
+    {
+      ibuf[i] = ival2;
+
+      ival2 += 253;
+    }
+
+    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
   if(edfclose_file(hdl))
   {
@@ -308,7 +329,7 @@ int main(void)
 
   if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 6500, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl, 11700, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -386,6 +407,31 @@ int main(void)
 
   if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
+  ival1 = -1010000;
+
+  ival2 = 990000;
+
+  for(j=0; j<4; j++)
+  {
+    for(i=0; i<20; i++)
+    {
+      ibuf[i] = ival1;
+
+      ival1 += 25300;
+    }
+
+    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+
+    for(i=0; i<23; i++)
+    {
+      ibuf[i] = ival2;
+
+      ival2 += 25300;
+    }
+
+    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
   if(edfclose_file(hdl))
   {
     hdl = -1;
@@ -405,7 +451,7 @@ int main(void)
 
   if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 7800000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.file_duration != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -439,7 +485,7 @@ int main(void)
 
   if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 6)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -447,9 +493,9 @@ int main(void)
 
   if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 120)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.signalparam[0].smp_in_file != 200)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_file != 138)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.signalparam[1].smp_in_file != 230)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -493,11 +539,15 @@ int main(void)
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(annot.onset != 7800000)  JUMP_TO_EXIT_ERROR_PROC
+  if(annot.onset != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfseek(hdl, 1, 400, EDFSEEK_SET) == 400)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfseek(hdl, 0, 412, EDFSEEK_SET) == 412)  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -771,6 +821,56 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
+  if(edfread_digital_samples(hdl, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<80; i++)
+  {
+//    printf("%i:   %i   %i\n", i,  ibuf[i], -10100 + (i * 253));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != -10000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != -10100 + (i * 253))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfread_digital_samples(hdl, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<92; i++)
+  {
+//    printf("%i:   %i   %i\n", i,  ibuf[i], 9900 + (i * 253));
+
+    if(i == 0)
+    {
+      if(ibuf[i] != 10000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i >= 80)
+    {
+      if(ibuf[i] != 30000)  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(ibuf[i] != 9900 + (i * 253))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl, 0, 185, EDFSEEK_SET) != 185)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<15; i++)
+  {
+//    printf("%i   %i\n", ibuf[i], -10100 + ((i + 65) * 253));
+
+    if(ibuf[i] != -10100 + ((i + 65) * 253))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
   if(edfclose_file(hdl))
   {
     hdl = -1;
@@ -790,7 +890,7 @@ int main(void)
 
   if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 6500000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.file_duration != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -824,7 +924,7 @@ int main(void)
 
   if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 5)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.datarecords_in_file != 9)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -832,9 +932,9 @@ int main(void)
 
   if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 100)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.signalparam[0].smp_in_file != 180)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_file != 115)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.signalparam[1].smp_in_file != 207)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -878,11 +978,15 @@ int main(void)
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(annot.onset != 6500000)  JUMP_TO_EXIT_ERROR_PROC
+  if(annot.onset != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfseek(hdl, 1, 500, EDFSEEK_SET) == 500)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfseek(hdl, 0, 333, EDFSEEK_SET) == 333)  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -1074,19 +1178,55 @@ int main(void)
     if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
+  if(edfread_digital_samples(hdl, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
 
+  for(i=0; i<80; i++)
+  {
+//    printf("%i:   %i   %i\n", i,  ibuf[i], -1010000 + (i * 25300));
 
+    if(i == 0)
+    {
+      if(ibuf[i] != -1000000)  JUMP_TO_EXIT_ERROR_PROC
 
+      continue;
+    }
 
+    if(ibuf[i] != -1010000 + (i * 25300))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
+  if(edfread_digital_samples(hdl, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
 
+  for(i=0; i<92; i++)
+  {
+//    printf("%i:   %i   %i\n", i,  ibuf[i], 990000 + (i * 25300));
 
+    if(i == 0)
+    {
+      if(ibuf[i] != 1000000)  JUMP_TO_EXIT_ERROR_PROC
 
+      continue;
+    }
 
+    if(i >= 80)
+    {
+      if(ibuf[i] != 3000000)  JUMP_TO_EXIT_ERROR_PROC
 
+      continue;
+    }
 
+    if(ibuf[i] != 990000 + (i * 25300))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
+  if(edfseek(hdl, 0, 165, EDFSEEK_SET) != 165)  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<15; i++)
+  {
+//    printf("%i   %i\n", ibuf[i], -10100 + ((i + 65) * 253));
+
+    if(ibuf[i] != -1010000 + ((i + 65) * 25300))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
   if(edfclose_file(hdl))
   {
