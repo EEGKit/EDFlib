@@ -75,6 +75,37 @@ int main(void)
 
   for(i=0; i<512; i++)
   {
+    if(edf_set_samplefrequency(hdl, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<1000; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<512; i++)
+  {
     if(edf_set_samplefrequency(hdl, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
 
     if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
@@ -286,6 +317,68 @@ int main(void)
   }
 
 /********************************** BDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<512; i++)
+  {
+    if(edf_set_samplefrequency(hdl, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<1000; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<512; i++)
+  {
+    if(edf_set_samplefrequency(hdl, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<1000; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl) == 0)
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
 
   hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, chns);
 
