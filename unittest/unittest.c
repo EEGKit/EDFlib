@@ -1274,7 +1274,7 @@ int main(void)
 
   fseek(fp, 0x560, SEEK_SET);
 
-  fputc('a', fp);
+  fputc(127, fp);
 
   fclose(fp);
 
@@ -1294,7 +1294,7 @@ int main(void)
 
   fseek(fp, 0x5ff, SEEK_SET);
 
-  fputc('b', fp);
+  fputc(13, fp);
 
   fclose(fp);
 
