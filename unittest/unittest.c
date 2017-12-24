@@ -206,6 +206,8 @@ int main(void)
 
   if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfwrite_annotation_latin1(hdl, 9000, 1000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edfwrite_annotation_latin1(hdl, 13000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
@@ -455,6 +457,8 @@ int main(void)
 
   if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfwrite_annotation_latin1(hdl, 6000, 2000, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edfwrite_annotation_latin1(hdl, 11700, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
@@ -613,7 +617,7 @@ int main(void)
 
   if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -664,6 +668,14 @@ int main(void)
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 9000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, "0.1000"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -1400,7 +1412,7 @@ int main(void)
 
   if(hdr.datarecords_in_file != 9)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.annotations_in_file != 2)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -1451,6 +1463,14 @@ int main(void)
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 6000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, "0.2000"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
