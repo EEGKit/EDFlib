@@ -412,7 +412,10 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
         fclose(file);
 
         free(hdr->edfparam);
+        hdr->edfparam = NULL;
         free(hdr);
+        hdr = NULL;
+        hdrlist[edfhdr->handle] = NULL;
 
         return -1;
       }
@@ -3700,8 +3703,10 @@ int edfopen_file_writeonly(const char *path, int filetype, int number_of_signals
   if(file==NULL)
   {
     free(hdr->edfparam);
-
+    hdr->edfparam = NULL;
     free(hdr);
+    hdr = NULL;
+    hdrlist[handle] = NULL;
 
     return EDFLIB_NO_SUCH_FILE_OR_DIRECTORY;
   }
