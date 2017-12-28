@@ -60,6 +60,14 @@ int main(void)
 
   double dbuf[1000];
 
+  union {
+          unsigned int one;
+          signed int one_signed;
+          unsigned short two[2];
+          signed short two_signed[2];
+          unsigned char four[4];
+        } var;
+
   struct edf_hdr_struct hdr;
 
   struct edf_annotation_struct annot;
@@ -2416,6 +2424,128 @@ int main(void)
 
     JUMP_TO_EXIT_ERROR_PROC
   }
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x600, SEEK_SET);
+
+  if(fread(str, 60, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+    var.four[0] = str[i * 3];
+    var.four[1] = str[i * 3 + 1];
+    var.four[2] = str[i * 3 + 2];
+
+    if(var.four[2]&0x80)
+    {
+      var.four[3] = 0xff;
+    }
+    else
+    {
+      var.four[3] = 0x00;
+    }
+
+//    printf("buf[%i]: %i   value: %f\n", i, var.one_signed, ((-5100 + (i * 800)) / 0.0075) - 333333.333333);
+
+    if(i == 0)
+    {
+      if(var.one_signed != -1000000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(i >= 19)
+    {
+      if(var.one_signed != 1000000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(dblcmp_lim(var.one_signed, ((-5100 + (i * 800)) / 0.0075) - 333333.333333, 1.0001))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x63c, SEEK_SET);
+
+  if(fread(str, 69, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+    var.four[0] = str[i * 3];
+    var.four[1] = str[i * 3 + 1];
+    var.four[2] = str[i * 3 + 2];
+
+    if(var.four[2]&0x80)
+    {
+      var.four[3] = 0xff;
+    }
+    else
+    {
+      var.four[3] = 0x00;
+    }
+
+//    printf("buf[%i]: %i   value: %f\n", i, var.one_signed, ((-30100 + (i * 909)) / 0.01) + 4000000.0);
+
+    if(i == 0)
+    {
+      if(var.one_signed != 1000000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(dblcmp_lim(var.one_signed, ((-30100 + (i * 909)) / 0.01) + 4000000.0, 1.0001))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
 
   return EXIT_SUCCESS;
 
