@@ -1543,6 +1543,517 @@ int main(void)
 
   fclose(fp);
 
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x628, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], (-30100 + (i * 909)) + 40000);
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != (-30100 + (i * 909)) + 40000)
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x7ac, SEEK_SET);
+
+  if(fread(str, 40, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+//    printf("buf[%i]: %i   value: %f\n", i, ((signed short *)str)[i], ((-5100 + (i * 800)) / 0.75) - 3333.333333);
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != -10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(i >= 19)
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(dblcmp_lim(((signed short *)str)[i], ((-5100 + (i * 800)) / 0.75) - 3333.333333, 1.0001))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x7d4, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], (-30100 + (i * 909)) + 40000);
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != (-30100 + (i * 909)) + 40000)
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x958, SEEK_SET);
+
+  if(fread(str, 40, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], -10100 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != -10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != -10100 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x980, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], 9900 + (i * 1053));
+
+    if((i == 0) || (i == 22))
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if((i == 20) || (i == 21))
+    {
+      if(((signed short *)str)[i] != 30000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != 9900 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xb04, SEEK_SET);
+
+  if(fread(str, 40, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], -10100 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != -10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != -10100 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xb2c, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], 9900 + (i * 1053));
+
+    if((i == 0) || (i == 22))
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if((i == 20) || (i == 21))
+    {
+      if(((signed short *)str)[i] != 30000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != 9900 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xcb0, SEEK_SET);
+
+  if(fread(str, 40, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], -10100 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != -10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != -10100 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xcd8, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], 9900 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(i >= 20)
+    {
+      if(((signed short *)str)[i] != 30000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != 9900 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xe5c, SEEK_SET);
+
+  if(fread(str, 40, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<20; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], -10100 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != -10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != -10100 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
+  /****************************************/
+
+  fp = fopen("test.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xe84, SEEK_SET);
+
+  if(fread(str, 46, 1, fp) != 1)
+  {
+    fclose(fp);
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<23; i++)
+  {
+//    printf("buf[%i]: %i   value: %i\n", i, ((signed short *)str)[i], 9900 + (i * 1053));
+
+    if(i == 0)
+    {
+      if(((signed short *)str)[i] != 10000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(i >= 20)
+    {
+      if(((signed short *)str)[i] != 30000)
+      {
+        fclose(fp);
+
+        JUMP_TO_EXIT_ERROR_PROC
+      }
+
+      continue;
+    }
+
+    if(((signed short *)str)[i] != 9900 + (i * 1053))
+    {
+      fclose(fp);
+
+      JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  fclose(fp);
+
 /********************************** BDF reading ******************************/
 
   if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
