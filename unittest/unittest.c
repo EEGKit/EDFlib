@@ -2647,6 +2647,90 @@ int main(void)
 
   fwrite("-1000000", 8, 1, fp);
 
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite("+9", 2, 1, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdr.handle))  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite("-9", 2, 1, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite("-1", 2, 1, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite("0 ", 2, 1, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite(" 9", 2, 1, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.bdf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0xec, SEEK_SET);
+
+  fwrite("9 ", 2, 1, fp);
+
   fclose(fp);
 
   if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
