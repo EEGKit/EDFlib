@@ -211,6 +211,16 @@ int main(void)
 
   freqspan = stopfreq - startfreq;
 
+  if(linear)
+  {
+    freq = startfreq + (freqspan * ((double)sampleswritten / (double)samples));
+  }
+  else
+  {
+    // freq = expo((((double)sampleswritten / (double)samples)) * log10(stopfreq));
+    freq = expo(((((startfreq / stopfreq) * ((stopfreq / freqspan) * samples)) + sampleswritten) / ((stopfreq / freqspan) * samples)) * log10(stopfreq));
+  }
+
   for(j=0; j<fileduration; j++)
   {
     for(i=0; i<smp_freq; i++)
