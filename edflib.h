@@ -649,6 +649,7 @@ int edf_set_number_of_annotation_signals(int handle, int annot_signals);
 /* you want to write is more than the number of seconds of the duration of the recording, you can use */
 /* this function to increase the storage space for annotations */
 /* Minimum is 1, maximum is 64 */
+/* Returns 0 on success, otherwise -1 */
 
 
 #ifdef __cplusplus
