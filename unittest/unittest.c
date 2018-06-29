@@ -2859,6 +2859,61 @@ int main(void)
 
   hdl = -1;
 
+/********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test2.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patient_additional(hdl, "Test"))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<100; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
+  if(edfopen_file_readonly("test2.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.patient_additional, "Test", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
   /****************************************/
 
   return EXIT_SUCCESS;
