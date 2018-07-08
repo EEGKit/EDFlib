@@ -2877,6 +2877,8 @@ int main(void)
 
   if(edf_set_patient_additional(hdl, "Test"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edf_set_recording_additional(hdl, "tEST"))  JUMP_TO_EXIT_ERROR_PROC
+
   for(i=0; i<100; i++)
   {
     dbuf[i] = 0;
@@ -2893,7 +2895,7 @@ int main(void)
 
   hdl = -1;
 
-/********************************** EDF writing ******************************/
+/********************************** EDF reading ******************************/
 
   if(edfopen_file_readonly("test2.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2904,6 +2906,93 @@ int main(void)
   if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strncmp(hdr.patient_additional, "Test", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.recording_additional, "tEST", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test3.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientname(hdl, "Alpha"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientcode(hdl, "Bravo"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_birthdate(hdl, 2005, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patient_additional(hdl, "Charlie"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_admincode(hdl, "Delta"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_technician(hdl, "Echo"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_equipment(hdl, "Foxtrot"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_recording_additional(hdl, "Golf"))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<100; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test3.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.gender, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.birthdate, "04 jul 2005", 11))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.patient_additional, "Charlie", 7))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.admincode, "Delta", 5))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.technician, "Echo", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.equipment, "Foxtrot", 7))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(hdr.recording_additional, "Golf", 4))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl))
   {
