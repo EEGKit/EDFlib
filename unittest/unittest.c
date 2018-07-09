@@ -3005,6 +3005,22 @@ int main(void)
 
   /****************************************/
 
+  fp = fopen("test3.edf", "rb");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(fread(str, 256, 1, fp) != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  fclose(fp);
+
+  if(strncmp(str + 8, "Bravo M 04-JUL-2005 Alpha Charlie"
+    "                                               ", 80))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strncmp(str + 88, "Startdate 09-JUL-2018 Delta Echo Foxtrot Golf"
+    "                                   ", 80))  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
   return EXIT_SUCCESS;
 
 OUT_ERROR:
