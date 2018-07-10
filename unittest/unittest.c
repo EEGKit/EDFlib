@@ -2934,9 +2934,11 @@ int main(void)
 
   if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientname(hdl, "Alpha"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_startdatetime(hdl, 2008, 12, 31, 23, 59, 58))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientcode(hdl, "Bravo"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientname(hdl, "Ãlpha"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientcode(hdl, "Bràvó"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2944,11 +2946,11 @@ int main(void)
 
   if(edf_set_patient_additional(hdl, "Charlie"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_admincode(hdl, "Delta"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_admincode(hdl, "Dëlta"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_technician(hdl, "Echo"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_technician(hdl, "Ëcho"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_equipment(hdl, "Foxtrot"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_equipment(hdl, "Foxtröt"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_recording_additional(hdl, "Golf"))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -3016,7 +3018,7 @@ int main(void)
   if(strncmp(str + 8, "Bravo M 04-JUL-2005 Alpha Charlie"
     "                                               ", 80))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(str + 88, "Startdate 09-JUL-2018 Delta Echo Foxtrot Golf"
+  if(strncmp(str + 88, "Startdate 31-DEC-2008 Delta Echo Foxtrot Golf"
     "                                   ", 80))  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
