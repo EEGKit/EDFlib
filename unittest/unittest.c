@@ -76,7 +76,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 113)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 114)  JUMP_TO_EXIT_ERROR_PROC
 
 /********************************** EDF writing ******************************/
 
