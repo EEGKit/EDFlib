@@ -1,8 +1,7 @@
 /*
 *****************************************************************************
 *
-* Copyright (c) 2009 - 2019 Teunis van Beelen
-* All rights reserved.
+* Copyright (C) 2009 - 2019 Teunis van Beelen
 *
 * email: teuniz@gmail.com
 *
