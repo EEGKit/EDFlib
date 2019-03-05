@@ -83,7 +83,8 @@ The description/name of an EDF+ annotation on the other hand, is encoded in UTF-
 
 ## License
 
-Copyright (C) 2009 - 2019 Teunis van Beelen
+Copyright (c) 2009 - 2019 Teunis van Beelen
+All rights reserved.
 
 email: teuniz@gmail.com
 
