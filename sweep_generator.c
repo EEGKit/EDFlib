@@ -40,6 +40,11 @@
 #include "edflib.h"
 
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846264338327)
+#endif
+
+#define SMP_FREQ   (8192)
 
 
 // Uncomment the next line to create a BSF+ file instead of EDF+:
@@ -56,11 +61,10 @@ int main(void)
   int i, j,
       hdl,
       chns=1,
-      smp_freq=8192,
       fileduration=300,
       linear=0;
 
-  double buf[smp_freq],
+  double buf[SMP_FREQ],
          q,
          sine_1,
          startfreq=10.0,
@@ -73,12 +77,6 @@ int main(void)
 
   char str[256];
 
-
-#if defined(__APPLE__) || defined(__MACH__) || defined(__APPLE_CC__)
-#define expo __exp10
-#else
-#define expo exp10
-#endif
 
 
 #ifdef BDF_FORMAT
@@ -96,7 +94,7 @@ int main(void)
 
   for(i=0; i<chns; i++)
   {
-    if(edf_set_samplefrequency(hdl, i, smp_freq))
+    if(edf_set_samplefrequency(hdl, i, SMP_FREQ))
     {
       printf("error: edf_set_samplefrequency()\n");
 
@@ -207,7 +205,7 @@ int main(void)
 
   sampleswritten = 0;
 
-  samples = fileduration * (long long)smp_freq;
+  samples = fileduration * (long long)SMP_FREQ;
 
   freqspan = stopfreq - startfreq;
 
@@ -217,16 +215,16 @@ int main(void)
   }
   else
   {
-    // freq = expo((((double)sampleswritten / (double)samples)) * log10(stopfreq));
-    freq = expo(((((startfreq / stopfreq) * ((stopfreq / freqspan) * samples)) + sampleswritten) / ((stopfreq / freqspan) * samples)) * log10(stopfreq));
+    // freq = pow(10, (((double)sampleswritten / (double)samples)) * log10(stopfreq));
+    freq = pow(10, ((((startfreq / stopfreq) * ((stopfreq / freqspan) * samples)) + sampleswritten) / ((stopfreq / freqspan) * samples)) * log10(stopfreq));
   }
 
   for(j=0; j<fileduration; j++)
   {
-    for(i=0; i<smp_freq; i++)
+    for(i=0; i<SMP_FREQ; i++)
     {
       q = M_PI * 2.0;
-      q /= (smp_freq / freq);
+      q /= (SMP_FREQ / freq);
       sine_1 += q;
       q = sin(sine_1);
       q *= 200.0;
@@ -237,8 +235,8 @@ int main(void)
       }
       else
       {
-        // freq = expo((((double)sampleswritten / (double)samples)) * log10(stopfreq));
-        freq = expo(((((startfreq / stopfreq) * ((stopfreq / freqspan) * samples)) + sampleswritten) / ((stopfreq / freqspan) * samples)) * log10(stopfreq));
+        // freq = pow(10, (((double)sampleswritten / (double)samples)) * log10(stopfreq));
+        freq = pow(10, ((((startfreq / stopfreq) * ((stopfreq / freqspan) * samples)) + sampleswritten) / ((stopfreq / freqspan) * samples)) * log10(stopfreq));
       }
       sampleswritten++;
     }

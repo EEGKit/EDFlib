@@ -60,13 +60,17 @@
 
 
 
-#define SMP_FREQ 200
+#define SMP_FREQ  (200)
 
-#define SMP_FREQ_2 256
+#define SMP_FREQ_2  (256)
 
-#define SMP_FREQ_3 217
+#define SMP_FREQ_3  (217)
 
-#define FILE_DURATION 600
+#define FILE_DURATION  (600)
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846264338327)
+#endif
 
 
 // Uncomment the next line to create a BDF+ file instead of EDF+:

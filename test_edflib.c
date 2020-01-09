@@ -39,7 +39,7 @@
 
 
 
-
+#define SAMPLES_READ   (200)
 
 
 int main(int argc, char *argv[])
@@ -181,9 +181,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  n = 200; /* read n samples from the file */
-
-  buf = (double *)malloc(sizeof(double[n]));
+  buf = (double *)malloc(sizeof(double[SAMPLES_READ]));
   if(buf==NULL)
   {
     printf("\nmalloc error\n");
@@ -195,7 +193,7 @@ int main(int argc, char *argv[])
 
   edfseek(hdl, channel, (long long)((((double)x) / ((double)hdr.file_duration / (double)EDFLIB_TIME_DIMENSION)) * ((double)hdr.signalparam[channel].smp_in_file)), EDFSEEK_SET);
 
-  n = edfread_physical_samples(hdl, channel, n, buf);
+  n = edfread_physical_samples(hdl, channel, SAMPLES_READ, buf);
 
   if(n==(-1))
   {

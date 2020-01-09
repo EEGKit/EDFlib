@@ -39,7 +39,11 @@
 #include "edflib.h"
 
 
-#define SMP_FREQ 2048
+#define SMP_FREQ  (2048)
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846264338327)
+#endif
 
 
 
