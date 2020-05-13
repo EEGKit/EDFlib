@@ -2924,6 +2924,8 @@ int main(void)
 
   if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edf_set_datarecord_duration(hdl, 77777))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edf_set_subsecond_starttime(hdl, 1234000))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfwrite_annotation_latin1(hdl, 10000LL, -1LL, "test_annot_1sec"))  JUMP_TO_EXIT_ERROR_PROC
@@ -2963,7 +2965,10 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  for(i=0; i<20; i++)
+  {
+    if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
   if(edfclose_file(hdl))
   {
