@@ -156,7 +156,7 @@ struct edf_param_struct{         /* this structure contains all the relevant EDF
 
 
 struct edf_annotation_struct{                           /* this structure is used for annotations */
-        long long onset;                                /* onset time of the event, expressed in units of 100 nanoSeconds and relative to the starttime in the header */
+        long long onset;                                /* onset time of the event, expressed in units of 100 nanoSeconds and relative to the start of the file */
         char duration[16];                              /* duration time, this is a null-terminated ASCII text-string */
         char annotation[EDFLIB_MAX_ANNOTATION_LEN + 1]; /* description of the event in UTF-8, this is a null terminated string */
        };
@@ -609,7 +609,7 @@ int edf_blockwrite_digital_samples(int handle, int *buf);
 int edfwrite_annotation_utf8(int handle, long long onset, long long duration, const char *description);
 
 /* writes an annotation/event to the file */
-/* onset is relative to the starttime and startdate of the file */
+/* onset is relative to the start of the file */
 /* onset and duration are in units of 100 microSeconds!     resolution is 0.0001 second! */
 /* for example: 34.071 seconds must be written as 340710 */
 /* if duration is unknown or not applicable: set a negative number (-1) */
@@ -621,7 +621,7 @@ int edfwrite_annotation_utf8(int handle, long long onset, long long duration, co
 int edfwrite_annotation_latin1(int handle, long long onset, long long duration, const char *description);
 
 /* writes an annotation/event to the file */
-/* onset is relative to the starttime and startdate of the file */
+/* onset is relative to the start of the file */
 /* onset and duration are in units of 100 microSeconds!     resolution is 0.0001 second! */
 /* for example: 34.071 seconds must be written as 340710 */
 /* if duration is unknown or not applicable: set a negative number (-1) */
