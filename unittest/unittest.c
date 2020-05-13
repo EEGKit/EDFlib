@@ -58,6 +58,8 @@ int main(void)
 
   short sbuf[100];
 
+  long long l_tmp;
+
   double dbuf[1000];
 
   union {
@@ -2928,7 +2930,22 @@ int main(void)
 
   if(edf_set_subsecond_starttime(hdl, 1234000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 10000LL, -1LL, "test_annot_1sec"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<60; i++)
+  {
+    l_tmp = 10000LL * (i + 1);
+
+    snprintf(str, 4096, "test %i sec", (int)(l_tmp / EDFLIB_TIME_DIMENSION));
+
+    if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+
+    l_tmp += 3333LL;
+
+    snprintf(str, 4096, "test %i.%04i sec", (int)(l_tmp / EDFLIB_TIME_DIMENSION), (int)(l_tmp % EDFLIB_TIME_DIMENSION));
+
+    if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+  }
 
   if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2965,7 +2982,7 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  for(i=0; i<20; i++)
+  for(i=0; i<40; i++)
   {
     if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
   }
@@ -2989,9 +3006,20 @@ int main(void)
 
   if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  for(i=0; i<60; i++)
+  {
+    if(edf_get_annotation(hdl, i * 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(annot.onset != 10000000LL)  JUMP_TO_EXIT_ERROR_PROC
+//    printf("i: %i   onset: %lli\n", i, annot.onset);
+
+    if(annot.onset != 10000000LL * (i + 1))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(edf_get_annotation(hdl, i * 2 + 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+    if(annot.onset != 10000000LL * (i + 1) + 3333000LL)  JUMP_TO_EXIT_ERROR_PROC
+
+//    printf("i: %i   onset: %lli\n", i * 2 + 1, annot.onset);
+  }
 
   if(strncmp(hdr.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
 
