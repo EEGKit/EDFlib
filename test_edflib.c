@@ -114,7 +114,11 @@ int main(int argc, char *argv[])
   printf("file duration: %lli seconds\n", hdr.file_duration / EDFLIB_TIME_DIMENSION);
 #endif
   printf("startdate: %i-%i-%i\n", hdr.startdate_day, hdr.startdate_month, hdr.startdate_year);
-  printf("starttime: %i:%02i:%02i\n", hdr.starttime_hour, hdr.starttime_minute, hdr.starttime_second);
+#ifdef WIN32
+  printf("starttime: %i:%02i:%02i.%07I64d\n", hdr.starttime_hour, hdr.starttime_minute, hdr.starttime_second, hdr.starttime_subsecond);
+#else
+  printf("starttime: %i:%02i:%02i.%07lli\n", hdr.starttime_hour, hdr.starttime_minute, hdr.starttime_second, hdr.starttime_subsecond);
+#endif
   printf("patient: %s\n", hdr.patient);
   printf("recording: %s\n", hdr.recording);
   printf("patientcode: %s\n", hdr.patientcode);
@@ -173,8 +177,9 @@ int main(int argc, char *argv[])
             annot.duration,
             annot.annotation);
 #else
-      printf("annotation: onset is %lli    duration is %s    description is %s\n",
+      printf("annotation: onset is %lli.%07lli sec    duration is %s    description is \"%s\"\n",
             annot.onset / EDFLIB_TIME_DIMENSION,
+            annot.onset % EDFLIB_TIME_DIMENSION,
             annot.duration,
             annot.annotation);
 #endif

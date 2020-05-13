@@ -676,6 +676,16 @@ int edf_set_number_of_annotation_signals(int handle, int annot_signals);
 /* Returns 0 on success, otherwise -1 */
 
 
+int edf_set_subsecond_starttime(int handle, int subsecond);
+/* Sets the subsecond starttime expressed in units of 100 nanoSeconds */
+/* Valid range is 0 to 9999999 inclusive. Default is 0 */
+/* This function is optional and can be called only after opening a file in writemode */
+/* and before the first sample write action */
+/* Returns 0 on success, otherwise -1 */
+/* It is strongly recommended to use a maximum resolution of no more than 100 mirco-Seconds. */
+/* e.g. use 1234000  to set a starttime offset of 0.1234 seconds (instead of 1234567) */
+/* in other words, leave the last 3 digits at zero */
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

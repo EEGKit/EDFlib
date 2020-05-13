@@ -76,7 +76,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 116)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 117)  JUMP_TO_EXIT_ERROR_PROC
 
 /********************************** EDF writing ******************************/
 
@@ -2924,6 +2924,10 @@ int main(void)
 
   if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edf_set_subsecond_starttime(hdl, 1234000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfwrite_annotation_latin1(hdl, 10000LL, -1LL, "test_annot_1sec"))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
@@ -2979,6 +2983,10 @@ int main(void)
   if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 10000000LL)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strncmp(hdr.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
 
