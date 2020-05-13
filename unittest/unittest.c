@@ -2936,13 +2936,13 @@ int main(void)
   {
     l_tmp = 10000LL * (i + 1);
 
-    snprintf(str, 4096, "test %i sec", (int)(l_tmp / EDFLIB_TIME_DIMENSION));
+    snprintf(str, 4096, "test %i sec", (int)(l_tmp / 10000LL));
 
     if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
 
     l_tmp += 3333LL;
 
-    snprintf(str, 4096, "test %i.%04i sec", (int)(l_tmp / EDFLIB_TIME_DIMENSION), (int)(l_tmp % EDFLIB_TIME_DIMENSION));
+    snprintf(str, 4096, "test %i.%04i sec", (int)(l_tmp / 10000LL), (int)(l_tmp % 10000LL));
 
     if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
   }
