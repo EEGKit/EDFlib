@@ -78,7 +78,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 117)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 118)  JUMP_TO_EXIT_ERROR_PROC
 
 /********************************** EDF writing ******************************/
 
@@ -3061,6 +3061,27 @@ int main(void)
 
   if(strncmp(str + 88, "Startdate 31-DEC-2008 Delta Echo Foxtrot Golf"
     "                                   ", 80))  JUMP_TO_EXIT_ERROR_PROC
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test3.edf", &hdr, EDFLIB_DO_NOT_READ_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.starttime_subsecond!=1234000LL)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
 
   /****************************************/
 
