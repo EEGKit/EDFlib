@@ -48,19 +48,19 @@ int main(void)
       tmp,
       hdl=-1,
       chns=2,
-      ibuf[20000],
+      *ibuf=NULL,
       line,
       ival1,
       ival2;
 
-  char str[4096]={0,},
-       pbuf[300];
+  char *str=NULL,
+       *pbuf=NULL;
 
-  short sbuf[100];
+  short *sbuf=NULL;
 
   long long l_tmp;
 
-  double dbuf[1000];
+  double *dbuf=NULL;
 
   union {
           unsigned int one;
@@ -74,11 +74,42 @@ int main(void)
 
   struct edf_annotation_struct annot;
 
-  FILE *fp;
+  FILE *fp=NULL;
 
   setlocale(LC_ALL, "C");
 
   if(edflib_version() != 118)  JUMP_TO_EXIT_ERROR_PROC
+
+  ibuf = (int *)malloc(100 * sizeof(int));
+  if(ibuf == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
+
+  sbuf = (short *)malloc(100 * sizeof(short));
+  if(sbuf == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
+
+  dbuf = (double *)malloc(10240 * sizeof(double));
+  if(dbuf == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
+
+  str = (char *)malloc(4096 * sizeof(char));
+  if(str == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
+  str[0] = 0;
+
+  pbuf = (char *)malloc(300 * sizeof(char));
+  if(pbuf == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
 
 /********************************** EDF writing ******************************/
 
@@ -2932,19 +2963,37 @@ int main(void)
 
   if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
 
+  char str_korea[]={0xeb,0x8c,0x80,0xed,0x95,0x9c,0xeb,0xaf,0xbc,0xea,0xb5,0xad,0x00};
+
+  char str_accented[]={0xc3,0xb1,0xe1,0xb8,0xb1,0xc3,0xb6,0xc3,0xa8,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x30,0x00};
+
   for(i=0; i<60; i++)
   {
     l_tmp = 10000LL * (i + 1);
 
     snprintf(str, 4096, "test %i sec", (int)(l_tmp / 10000LL));
 
-    if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+    if(i != 0)
+    {
+     if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+    }
+    else
+    {
+     if(edfwrite_annotation_utf8(hdl, l_tmp, -1LL, str_accented))  JUMP_TO_EXIT_ERROR_PROC
+    }
 
     l_tmp += 3333LL;
 
     snprintf(str, 4096, "test %i.%04i sec", (int)(l_tmp / 10000LL), (int)(l_tmp % 10000LL));
 
-    if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+    if(i != 0)
+    {
+      if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+    }
+    else
+    {
+     if(edfwrite_annotation_utf8(hdl, l_tmp, -1LL, str_korea))  JUMP_TO_EXIT_ERROR_PROC
+    }
   }
 
   if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
@@ -3085,6 +3134,12 @@ int main(void)
 
   /****************************************/
 
+  free(ibuf);
+  free(sbuf);
+  free(dbuf);
+  free(str);
+  free(pbuf);
+
   return EXIT_SUCCESS;
 
 OUT_ERROR:
@@ -3094,7 +3149,13 @@ OUT_ERROR:
     edfclose_file(hdl);
   }
 
-  printf("Error, line %i file %s\n", line, __FILE__);
+  free(ibuf);
+  free(sbuf);
+  free(dbuf);
+  free(str);
+  free(pbuf);
+
+  fprintf(stderr, "Error, line %i file %s\n", line, __FILE__);
 
   return EXIT_FAILURE;
 }

@@ -7,7 +7,7 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Wshadow -Wformat-nonliteral -Wformat-security -Wtype-limits -g -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
+CFLAGS = -Wall -Wextra -Wshadow -Wformat-nonliteral -Wformat-security -Wtype-limits -Wfatal-errors -g -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
 
 all: edflib_test
 
