@@ -224,6 +224,10 @@ int main(void)
 
   if(edf_set_physical_dimension(hdl, 1, str))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(!edf_set_startdatetime(hdl, 2085, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(!edf_set_startdatetime(hdl, 1984, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edf_set_startdatetime(hdl, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_patientname(hdl, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
