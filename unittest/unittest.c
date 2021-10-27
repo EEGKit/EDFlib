@@ -78,7 +78,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 119)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 120)  JUMP_TO_EXIT_ERROR_PROC
 
   ibuf = (int *)malloc(100 * sizeof(int));
   if(ibuf == NULL)
@@ -2370,7 +2370,14 @@ int main(void)
   {
 //    printf("%i:   %i   %i\n", i, ibuf[i], -1010000 + (i * 105300));
 
-    if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+    if(i == 0)
+    {
+      if(ibuf[i] != -1000000)  JUMP_TO_EXIT_ERROR_PROC
+    }
+    else
+    {
+      if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+    }
   }
 
   if(edfseek(hdl, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
@@ -2381,7 +2388,18 @@ int main(void)
   {
 //    printf("%i:   %i   %i\n", i, ibuf[i], 990000 + (i * 105300));
 
-    if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+    if(i == 0)
+    {
+      if(ibuf[i] != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+    }
+    else if(i >= 20)
+      {
+        if(ibuf[i] != 3000000)  JUMP_TO_EXIT_ERROR_PROC
+      }
+      else
+      {
+        if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
+      }
   }
 
   if(edfseek(hdl, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
