@@ -344,7 +344,29 @@ int edfopen_file_writeonly(const char *path, int filetype, int number_of_signals
 /* EDFLIB_MAXFILES_REACHED            */
 /* EDFLIB_FILE_ALREADY_OPENED         */
 /* EDFLIB_NUMBER_OF_SIGNALS_INVALID   */
-/* This function is required if you want to write a file */
+/* This function is required if you want to write a file (or use edfopen_file_writeonly_with_params()) */
+
+
+int edfopen_file_writeonly_with_params(const char *path, int filetype, int number_of_signals, int samplefrequency, double phys_max_min, const char *phys_dim);
+
+/* This is a convenience function that can create and initialize a new EDF file including some default parameters. */
+/* opens an new file for writing. warning, an already existing file with the same name will be silently overwritten without advance warning!! */
+/* path is a null-terminated string containing the path and name of the file */
+/* filetype must be EDFLIB_FILETYPE_EDFPLUS or EDFLIB_FILETYPE_BDFPLUS */
+/* Sets the samplefrequency of all signals. (In reality, it sets the number of samples per datarecord which equals the samplefrequency only when */
+/* the datarecords have a duration of 1 second) */
+/* Sets the physical maximum of all signals to phys_max_min. */
+/* Sets the physical minimum of all signals to -phys_max_min. */
+/* Sets the physical dimension (unit) of all signals ("uV", "BPM", "mA", "Degr.", etc.). */
+/* phys_dim is a pointer to a NULL-terminated ASCII-string containing the physical dimension of the signals */
+/* returns a handle on success, you need this handle for the other functions */
+/* in case of an error it returns a negative number corresponding to one of the following values: */
+/* EDFLIB_MALLOC_ERROR                */
+/* EDFLIB_NO_SUCH_FILE_OR_DIRECTORY   */
+/* EDFLIB_MAXFILES_REACHED            */
+/* EDFLIB_FILE_ALREADY_OPENED         */
+/* EDFLIB_NUMBER_OF_SIGNALS_INVALID   */
+/* This function is required if you want to write a file (or use edfopen_file_writeonly()) */
 
 
 int edf_set_samplefrequency(int handle, int edfsignal, int samplefrequency);

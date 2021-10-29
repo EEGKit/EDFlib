@@ -3675,6 +3675,50 @@ static void edflib_latin12utf8(char *latin1_str, int len)
 }
 
 
+int edfopen_file_writeonly_with_params(const char *path, int filetype, int number_of_signals, int samplefrequency, double phys_max_min, const char *phys_dim)
+{
+  int i, handle;
+
+  char str[32]="";
+
+  handle = edfopen_file_writeonly(path, filetype, number_of_signals);
+  if(handle < 0)
+  {
+    return handle;
+  }
+
+  for(i=0; i<number_of_signals; i++)
+  {
+    edf_set_samplefrequency(handle, i, samplefrequency);
+
+    edf_set_physical_maximum(handle, i, phys_max_min);
+
+    edf_set_physical_minimum(handle, i, -phys_max_min);
+
+    edf_set_physical_dimension(handle, i, phys_dim);
+
+    snprintf(str, 32, "chan. %i", i + 1);
+
+    edf_set_label(handle, i, str);
+
+    if(filetype == EDFLIB_FILETYPE_BDFPLUS)
+    {
+      edf_set_digital_maximum(handle, i, 8388607);
+
+      edf_set_digital_minimum(handle, i, -8388608);
+    }
+    else
+    {
+      edf_set_digital_maximum(handle, i, 32767);
+
+      edf_set_digital_minimum(handle, i, -32768);
+    }
+  }
+
+  return handle;
+}
+
+
 int edfopen_file_writeonly(const char *path, int filetype, int number_of_signals)
 {
   int i, handle;
