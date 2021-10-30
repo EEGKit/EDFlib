@@ -695,7 +695,7 @@ int main(void)
 
   if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].physdimension, " C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2238,7 +2238,7 @@ int main(void)
 
   if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].physdimension, " C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
