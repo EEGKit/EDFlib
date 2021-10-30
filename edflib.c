@@ -31,20 +31,12 @@
 *****************************************************************************
 */
 
-
-
-
 /* compile with options "-D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE" */
-
-
-
 
 #include "edflib.h"
 
-
 #define EDFLIB_VERSION  (120)
 #define EDFLIB_MAXFILES  (64)
-
 
 #if defined(__APPLE__) || defined(__MACH__) || defined(__APPLE_CC__) || defined(__HAIKU__)
 
@@ -57,7 +49,6 @@
 #define fopeno fopen64
 
 #endif
-
 
 #ifdef _WIN32
 
@@ -76,8 +67,6 @@
 
 #endif
 
-
-
 /* max size of annotationtext */
 #define EDFLIB_WRITE_MAX_ANNOTATION_LEN  (40)
 
@@ -88,7 +77,6 @@
 #define EDFLIB_MAX_ANNOTATION_CHANNELS  (64)
 
 #define EDFLIB_ANNOT_MEMBLOCKSZ  (1000)
-
 
 struct edfparamblock{
         char   label[17];
@@ -158,13 +146,11 @@ struct edfhdrblock{
         struct edfparamblock *edfparam;
       };
 
-
 static struct edf_annotationblock{
         long long onset;
         char duration[16];
         char annotation[EDFLIB_MAX_ANNOTATION_LEN + 1];
        } *annotationslist[EDFLIB_MAXFILES];
-
 
 static struct edf_write_annotationblock{
         long long onset;
@@ -175,7 +161,6 @@ static struct edf_write_annotationblock{
 static int edf_files_open=0;
 
 static struct edfhdrblock *hdrlist[EDFLIB_MAXFILES];
-
 
 static struct edfhdrblock * edflib_check_edf_file(FILE *, int *);
 static int edflib_is_integer_number(char *);
@@ -201,8 +186,6 @@ static int edflib_fprint_ll_number_nonlocalized(FILE *, long long, int, int);
 static int edflib_write_tal(struct edfhdrblock *, FILE *);
 static int edflib_strlcpy(char *, const char *, int);
 static int edflib_strlcat(char *, const char *, int);
-
-
 
 
 int edflib_is_file_used(const char *path)
