@@ -113,6 +113,71 @@ int main(void)
 
 /********************************** EDF writing ******************************/
 
+  hdl = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<633; i++)
+  {
+    dbuf[i] = i;
+  }
+
+  for(i=0; i<10; i++)
+  {
+    for(j=0; j<65; j++)
+    {
+      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
   hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
 
   if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
@@ -230,7 +295,7 @@ int main(void)
 
   if(edf_set_startdatetime(hdl, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientname(hdl, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientname(hdl, "John Doü"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_patientcode(hdl, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -242,7 +307,7 @@ int main(void)
 
   if(edf_set_admincode(hdl, "789"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_technician(hdl, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_technician(hdl, "Rìchard Roë"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_set_equipment(hdl, "device"))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -643,7 +708,7 @@ int main(void)
 
   if(hdr.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patient_name, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.patient_name, "John Dou"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
