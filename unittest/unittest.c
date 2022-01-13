@@ -78,7 +78,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 120)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 121)  JUMP_TO_EXIT_ERROR_PROC
 
   ibuf = (int *)malloc(100 * sizeof(int));
   if(ibuf == NULL)
@@ -166,6 +166,101 @@ int main(void)
   if(hdr.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "X"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientname(hdl, "XY_Z"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientcode(hdl, "X2_3"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_admincode(hdl, "X6_7"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_technician(hdl, "X.Fo_o"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_equipment(hdl, "Xe_q"))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<633; i++)
+  {
+    dbuf[i] = i;
+  }
+
+  for(i=0; i<10; i++)
+  {
+    for(j=0; j<65; j++)
+    {
+      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, "X2 3"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "XY Z"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, "X6 7"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, "X.Fo o"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, "Xe q"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl))
   {
