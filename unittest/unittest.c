@@ -78,7 +78,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 121)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 122)  JUMP_TO_EXIT_ERROR_PROC
 
   ibuf = (int *)malloc(100 * sizeof(int));
   if(ibuf == NULL)
@@ -811,6 +811,12 @@ int main(void)
 
   if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(hdr.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
@@ -871,6 +877,8 @@ int main(void)
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(annot.duration_l != -10000000LL)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
@@ -879,6 +887,8 @@ int main(void)
 
   if(strcmp(annot.duration, "0.1000"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(annot.duration_l != 1000000LL)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strcmp(annot.annotation, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
@@ -886,6 +896,8 @@ int main(void)
   if(annot.onset != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.duration_l != -10000000LL)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2354,6 +2366,12 @@ int main(void)
 
   if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(hdr.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
@@ -2414,6 +2432,8 @@ int main(void)
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(annot.duration_l != -10000000LL)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
@@ -2422,6 +2442,8 @@ int main(void)
 
   if(strcmp(annot.duration, "0.2000"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(annot.duration_l != 2000000LL)  JUMP_TO_EXIT_ERROR_PROC
+
   if(strcmp(annot.annotation, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
@@ -2429,6 +2451,8 @@ int main(void)
   if(annot.onset != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.duration, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.duration_l != -10000000LL)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
