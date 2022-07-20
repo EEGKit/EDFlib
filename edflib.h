@@ -219,6 +219,8 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
 
  * returns 0 on success, in case of an error it returns -1 and an errorcode will be set in the member "filetype" of struct edf_hdr_struct
  * This function is required if you want to read a file
+ *
+ * note: it's possible to open a file which is currently open in write mode. See: edf_update_header()
  */
 
 int edfread_physical_samples(int handle, int edfsignal, int n, double *buf);
@@ -265,6 +267,22 @@ int edf_get_annotation(int handle, int n, struct edf_annotation_struct *annot);
  * The string that describes the annotation/event is encoded in UTF-8
  * To obtain the number of annotations in a file, check edf_hdr_struct -> annotations_in_file.
  * returns 0 on success or -1 in case of an error
+ */
+
+int edf_update_header(int handle, struct edf_hdr_struct *edfhdr);
+/*
+ * Only used when the same file is opened for writing and reading.
+ * The file needs to be opened in write mode first and after the first sample write action,
+ * it can be opened in read mode as well (using a different handle). This function is used to
+ * update the number of datarecords and the number of samples in the file for the read mode handle.
+ * returns 0 on success or -1 in case of an error
+ * possible errors:
+ * - it cannot find an already opened file in write mode with the same path & filename
+ * - no samples have been written to file
+ *
+ * note: at this moment, the number of annotations are not updated and are always zero.
+ * (they are written into the file when it's finalized & closed)
+ *
  */
 
 /*****************  the following functions are used in read and write mode **************************/

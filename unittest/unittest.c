@@ -46,7 +46,8 @@ int main(void)
 {
   int i, j,
       tmp,
-      hdl=-1,
+      hdl1=-1,
+      hdl2=-1,
       chns=2,
       *ibuf=NULL,
       line,
@@ -70,7 +71,7 @@ int main(void)
           unsigned char four[4];
         } var;
 
-  struct edf_hdr_struct hdr;
+  struct edf_hdr_struct hdr1, hdr2;
 
   struct edf_annotation_struct annot;
 
@@ -113,9 +114,141 @@ int main(void)
 
 /********************************** EDF writing ******************************/
 
-  hdl = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
+  hdl1 = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<633; i++)
+  {
+    dbuf[i] = i;
+  }
+
+  if(!edfopen_file_readonly("test.edf", &hdr2, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(j=0; j<65; j++)
+  {
+    if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfopen_file_readonly("test.edf", &hdr2, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl2 = hdr2.handle;
+
+  if(hdr2.datarecords_in_file != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(j=0; j<65; j++)
+  {
+    if(hdr2.signalparam[j].smp_in_file != 633)  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(i=0; i<9; i++)
+  {
+    for(j=0; j<65; j++)
+    {
+      if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  if(hdr2.datarecords_in_file != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(j=0; j<65; j++)
+  {
+    if(hdr2.signalparam[j].smp_in_file != 633)  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edf_update_header(hdl2, &hdr2))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr2.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(j=0; j<65; j++)
+  {
+    if(hdr2.signalparam[j].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfclose_file(hdl1))
+  {
+    hdl1 = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl1 = -1;
+
+  if(!edf_update_header(hdl2, &hdr2))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl2))
+  {
+    hdl2 = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl2 = -1;
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl1 = hdr1.handle;
+
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr1.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.patientcode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.patient_name, "X"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.admincode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.technician, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr1.equipment, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl1))
+  {
+    hdl1 = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl1 = -1;
+
+/********************************** EDF writing ******************************/
+
+  hdl1 = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
+
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientname(hdl1, "XY_Z"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientcode(hdl1, "X2_3"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_admincode(hdl1, "X6_7"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_technician(hdl1, "X.Fo_o"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_equipment(hdl1, "Xe_q"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<633; i++)
   {
@@ -126,168 +259,83 @@ int main(void)
   {
     for(j=0; j<65; j++)
     {
-      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+      if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
     }
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
 /********************************** EDF reading ******************************/
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patientcode, ""))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patientcode, "X2 3"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patient_name, "X"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patient_name, "XY Z"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.admincode, ""))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.admincode, "X6 7"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.technician, ""))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.technician, "X.Fo o"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.equipment, ""))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.equipment, "Xe q"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF writing ******************************/
 
-  hdl = edfopen_file_writeonly_with_params("test.edf", EDFLIB_FILETYPE_EDFPLUS, 65, 633, 3000, "uV");
+  hdl1 = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edf_set_patientname(hdl, "XY_Z"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edf_set_patientcode(hdl, "X2_3"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edf_set_admincode(hdl, "X6_7"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edf_set_technician(hdl, "X.Fo_o"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edf_set_equipment(hdl, "Xe_q"))  JUMP_TO_EXIT_ERROR_PROC
-
-  for(i=0; i<633; i++)
-  {
-    dbuf[i] = i;
-  }
-
-  for(i=0; i<10; i++)
-  {
-    for(j=0; j<65; j++)
-    {
-      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
-    }
-  }
-
-  if(edfclose_file(hdl))
-  {
-    hdl = -1;
-
-    JUMP_TO_EXIT_ERROR_PROC
-  }
-
-/********************************** EDF reading ******************************/
-
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
-
-  hdl = hdr.handle;
-
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].phys_min != -3000)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].dig_max != 32767)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].dig_min != -32768)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(hdr.signalparam[0].smp_in_datarecord != 633)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.patientcode, "X2 3"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.patient_name, "XY Z"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.admincode, "X6 7"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.technician, "X.Fo o"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(strcmp(hdr.equipment, "Xe q"))  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edfclose_file(hdl))
-  {
-    hdl = -1;
-
-    JUMP_TO_EXIT_ERROR_PROC
-  }
-
-  hdl = -1;
-
-/********************************** EDF writing ******************************/
-
-  hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
-
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<512; i++)
   {
-    if(edf_set_samplefrequency(hdl, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_samplefrequency(hdl1, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_maximum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_minimum(hdl1, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_maximum(hdl1, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_minimum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   for(i=0; i<10239; i++)
@@ -295,30 +343,30 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
+  hdl1 = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, 512);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<512; i++)
   {
-    if(edf_set_samplefrequency(hdl, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_samplefrequency(hdl1, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_maximum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_minimum(hdl1, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_maximum(hdl1, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_minimum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   for(i=0; i<10240; i++)
@@ -326,109 +374,109 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl) == 0)
+  if(edfclose_file(hdl1) == 0)
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, chns);
+  hdl1 = edfopen_file_writeonly("test.edf", EDFLIB_FILETYPE_EDFPLUS, chns);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_samplefrequency(hdl, 0, 20))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 0, 20))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_samplefrequency(hdl, 1, 23))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 1, 23))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 0, -5000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 0, -5000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 1, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 1, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 1, -30000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 1, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 0, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 0, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 1, 30000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 1, 30000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 1, 10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 1, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_label(hdl, 0, "trace1"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_label(hdl1, 0, "trace1"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_label(hdl, 1, "trace2"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_label(hdl1, 1, "trace2"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_prefilter(hdl, 0, "qwerty"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_prefilter(hdl1, 0, "qwerty"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_prefilter(hdl, 1, "zxcvbn"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_prefilter(hdl1, 1, "zxcvbn"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_transducer(hdl, 0, "asdfgh"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_transducer(hdl1, 0, "asdfgh"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_transducer(hdl, 1, "poklhyg"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_transducer(hdl1, 1, "poklhyg"))  JUMP_TO_EXIT_ERROR_PROC
 
   strcpy(str, "uVxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 181;
 
-  if(edf_set_physical_dimension(hdl, 0, str))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_dimension(hdl1, 0, str))  JUMP_TO_EXIT_ERROR_PROC
 
   strcpy(str, "dCxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 176;
   str[2] = 248;
 
-  if(edf_set_physical_dimension(hdl, 1, str))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_dimension(hdl1, 1, str))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(!edf_set_startdatetime(hdl, 2085, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+  if(!edf_set_startdatetime(hdl1, 2085, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(!edf_set_startdatetime(hdl, 1984, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+  if(!edf_set_startdatetime(hdl1, 1984, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_startdatetime(hdl, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_startdatetime(hdl1, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientname(hdl, "John Doü"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientname(hdl1, "John Doü"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientcode(hdl, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientcode(hdl1, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_gender(hdl1, 1))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_birthdate(hdl, 2010, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_birthdate(hdl1, 2010, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patient_additional(hdl, "nop"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patient_additional(hdl1, "nop"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_admincode(hdl, "789"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_admincode(hdl1, "789"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_technician(hdl, "Rìchard Roë"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_technician(hdl1, "Rìchard Roë"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_equipment(hdl, "device"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_equipment(hdl1, "device"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_number_of_annotation_signals(hdl1, 3))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_datarecord_duration(hdl, 13000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_datarecord_duration(hdl1, 13000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 9000, 1000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 9000, 1000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 13000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 13000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
     dbuf[i] = -5100 + (i * 800);
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
     dbuf[i] = -30100 + (i * 909);
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -440,21 +488,21 @@ int main(void)
     dbuf[i + 20] = -30100 + (i * 909);
   }
 
-  if(edf_blockwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
     sbuf[i] = -10100 + (i * 1053);
   }
 
-  if(edfwrite_digital_short_samples(hdl, sbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_short_samples(hdl1, sbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
     sbuf[i] = 9900 + (i * 1053);
   }
 
-  if(edfwrite_digital_short_samples(hdl, sbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_short_samples(hdl1, sbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -466,21 +514,21 @@ int main(void)
     sbuf[i + 20] = 9900 + (i * 1053);
   }
 
-  if(edf_blockwrite_digital_short_samples(hdl, sbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_digital_short_samples(hdl1, sbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
     ibuf[i] = -10100 + (i * 1053);
   }
 
-  if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
     ibuf[i] = 9900 + (i * 1053);
   }
 
-  if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -492,7 +540,7 @@ int main(void)
     ibuf[i + 20] = 9900 + (i * 1053);
   }
 
-  if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   ival1 = -10100;
 
@@ -507,7 +555,7 @@ int main(void)
       ival1 += 253;
     }
 
-    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
     for(i=0; i<23; i++)
     {
@@ -516,33 +564,33 @@ int main(void)
       ival2 += 253;
     }
 
-    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
 /********************************** BDF writing ******************************/
 
-  hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
+  hdl1 = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<512; i++)
   {
-    if(edf_set_samplefrequency(hdl, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_samplefrequency(hdl1, i, 10239))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_maximum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_minimum(hdl1, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_maximum(hdl1, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_minimum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   for(i=0; i<10239; i++)
@@ -550,30 +598,30 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
+  hdl1 = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 512);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<512; i++)
   {
-    if(edf_set_samplefrequency(hdl, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_samplefrequency(hdl1, i, 10240))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_maximum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_maximum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_physical_minimum(hdl, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_physical_minimum(hdl1, i, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_maximum(hdl, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_maximum(hdl1, i, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_set_digital_minimum(hdl, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_set_digital_minimum(hdl1, i, -10000))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   for(i=0; i<10240; i++)
@@ -581,105 +629,105 @@ int main(void)
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf) != EDFLIB_DATARECORD_SIZE_TOO_BIG)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl) == 0)
+  if(edfclose_file(hdl1) == 0)
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, chns);
+  hdl1 = edfopen_file_writeonly("test.bdf", EDFLIB_FILETYPE_BDFPLUS, chns);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_samplefrequency(hdl, 0, 20))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 0, 20))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_samplefrequency(hdl, 1, 23))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 1, 23))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 0, 10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 0, -5000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 0, -5000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 1, -10000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 1, -10000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 1, -30000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 1, -30000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 0, 1000000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 0, 1000000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 0, -1000000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 0, -1000000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 1, 3000000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 1, 3000000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 1, 1000000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 1, 1000000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_label(hdl, 0, "trace1"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_label(hdl1, 0, "trace1"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_label(hdl, 1, "trace2"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_label(hdl1, 1, "trace2"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_prefilter(hdl, 0, "qwerty"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_prefilter(hdl1, 0, "qwerty"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_prefilter(hdl, 1, "zxcvbn"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_prefilter(hdl1, 1, "zxcvbn"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_transducer(hdl, 0, "asdfgh"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_transducer(hdl1, 0, "asdfgh"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_transducer(hdl, 1, "poklhyg"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_transducer(hdl1, 1, "poklhyg"))  JUMP_TO_EXIT_ERROR_PROC
 
   strcpy(str, "uVxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 181;
 
-  if(edf_set_physical_dimension(hdl, 0, str))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_dimension(hdl1, 0, str))  JUMP_TO_EXIT_ERROR_PROC
 
   strcpy(str, "dCxxxxxxxxxxxxxxxxxxxx");
 
   str[0] = 176;
   str[2] = 248;
 
-  if(edf_set_physical_dimension(hdl, 1, str))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_dimension(hdl1, 1, str))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_startdatetime(hdl, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_startdatetime(hdl1, 2017, 12, 5, 12, 23, 8))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientname(hdl, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientname(hdl1, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientcode(hdl, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientcode(hdl1, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_gender(hdl1, 1))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_birthdate(hdl, 2010, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_birthdate(hdl1, 2010, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patient_additional(hdl, "nop"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patient_additional(hdl1, "nop"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_admincode(hdl, "789"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_admincode(hdl1, "789"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_technician(hdl, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_technician(hdl1, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_equipment(hdl, "device"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_equipment(hdl1, "device"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_number_of_annotation_signals(hdl1, 3))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_datarecord_duration(hdl, 13000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_datarecord_duration(hdl1, 13000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 6000, 2000, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 6000, 2000, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 11700, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1(hdl1, 11700, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
     dbuf[i] = -5100 + (i * 800);
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
     dbuf[i] = -30100 + (i * 909);
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -691,7 +739,7 @@ int main(void)
     dbuf[i + 20] = -30100 + (i * 909);
   }
 
-  if(edf_blockwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -715,21 +763,21 @@ int main(void)
     pbuf[i * 3 + 62] = (tmp >> 16) & 0xff;
   }
 
-  if(edf_blockwrite_digital_3byte_samples(hdl, pbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_digital_3byte_samples(hdl1, pbuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
     ibuf[i] = -1010000 + (i * 105300);
   }
 
-  if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
     ibuf[i] = 990000 + (i * 105300);
   }
 
-  if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -741,7 +789,7 @@ int main(void)
     ibuf[i + 20] = 990000 + (i * 105300);
   }
 
-  if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_blockwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
   ival1 = -1010000;
 
@@ -756,7 +804,7 @@ int main(void)
       ival1 += 25300;
     }
 
-    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
 
     for(i=0; i<23; i++)
     {
@@ -765,113 +813,113 @@ int main(void)
       ival2 += 25300;
     }
 
-    if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    if(edfwrite_digital_samples(hdl1, ibuf))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF reading ******************************/
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 13000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.file_duration != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patient_name, "John Dou"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patient_name, "John Dou"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 200)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_file != 200)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_file != 230)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].smp_in_file != 230)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].dig_max != 30000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].dig_max != 30000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_min != -10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_min != -10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].dig_min != 10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].dig_min != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 0)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -881,7 +929,7 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 9000000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -891,7 +939,7 @@ int main(void)
 
   if(strcmp(annot.annotation, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -901,56 +949,13 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 1, 400, EDFSEEK_SET) == 400)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 400, EDFSEEK_SET) == 400)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 0, 412, EDFSEEK_SET) == 412)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 412, EDFSEEK_SET) == 412)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
-
-  for(i=0; i<20; i++)
-  {
-//    printf("%f   %i\n", dbuf[i], -5100 + (i * 800));
-
-    if(i == 0)
-    {
-      if(dblcmp(dbuf[i], -5000))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(i == 19)
-    {
-      if(dblcmp(dbuf[i], 10000))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.75))  JUMP_TO_EXIT_ERROR_PROC
-  }
-
-  if(edfseek(hdl, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
-
-  for(i=0; i<23; i++)
-  {
-//    printf("%f   %i\n", dbuf[i], -30100 + (i * 909));
-
-    if(i == 0)
-    {
-      if(dblcmp(dbuf[i], -30000))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
-  }
-
-  edfrewind(hdl, 0);
-
-  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -973,9 +978,9 @@ int main(void)
     if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.75))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  edfrewind(hdl, 1);
+  if(edfseek(hdl1, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -991,9 +996,52 @@ int main(void)
     if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+  edfrewind(hdl1, 0);
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -5000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp(dbuf[i], 10000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.75))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl1, 1);
+
+  if(edfread_physical_samples(hdl1, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%f   %i\n", dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp(dbuf[i], -30000))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl1, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -1009,9 +1057,9 @@ int main(void)
     if(ibuf[i] != -10100 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -1041,9 +1089,9 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 80, EDFSEEK_SET) != 80)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 80, EDFSEEK_SET) != 80)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -1059,9 +1107,9 @@ int main(void)
     if(ibuf[i] != -10100 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 1, 92, EDFSEEK_SET) != 92)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 92, EDFSEEK_SET) != 92)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -1084,9 +1132,9 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -1102,9 +1150,9 @@ int main(void)
     if(ibuf[i] != -10100 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 1, 69, EDFSEEK_SET) != 69)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 69, EDFSEEK_SET) != 69)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -1134,9 +1182,9 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 100, EDFSEEK_SET) != 100)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 100, EDFSEEK_SET) != 100)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -1152,9 +1200,9 @@ int main(void)
     if(ibuf[i] != -10100 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 1, 115, EDFSEEK_SET) != 115)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 115, EDFSEEK_SET) != 115)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -1177,7 +1225,7 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 1053))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<80; i++)
   {
@@ -1193,7 +1241,7 @@ int main(void)
     if(ibuf[i] != -10100 + (i * 253))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<92; i++)
   {
@@ -1216,9 +1264,9 @@ int main(void)
     if(ibuf[i] != 9900 + (i * 253))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 185, EDFSEEK_SET) != 185)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 185, EDFSEEK_SET) != 185)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<15; i++)
   {
@@ -1227,14 +1275,14 @@ int main(void)
     if(ibuf[i] != -10100 + ((i + 65) * 253))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
   /****************************************/
 
@@ -1248,9 +1296,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1268,9 +1316,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1288,9 +1336,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1308,9 +1356,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1328,9 +1376,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1348,9 +1396,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_IS_DISCONTINUOUS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_IS_DISCONTINUOUS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1368,9 +1416,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1388,9 +1436,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1408,9 +1456,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1428,9 +1476,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1448,9 +1496,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1468,9 +1516,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1488,9 +1536,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1508,9 +1556,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1528,9 +1576,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1548,9 +1596,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1568,9 +1616,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1588,9 +1636,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1604,9 +1652,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1624,9 +1672,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1640,9 +1688,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1660,9 +1708,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1678,9 +1726,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1694,18 +1742,18 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
   /****************************************/
 
@@ -1719,9 +1767,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1739,9 +1787,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -1755,18 +1803,18 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
   /****************************************/
 
@@ -2334,99 +2382,99 @@ int main(void)
 
 /********************************** BDF reading ******************************/
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 3)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 3)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 2)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 11700000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.file_duration != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_day != 5)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_month != 12)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.startdate_year != 2017)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_second != 8)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_minute != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_hour != 12)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_subsecond != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patient_name, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patient_name, "John Doe"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_day != 4)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_month != 7)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.birthdate_year != 2010)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.patient_additional, "nop", 3))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.admincode, "789"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.technician, "Richard Roe"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.equipment, "device"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecord_duration != 1300000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 9)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.datarecords_in_file != 9)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[1].label, "trace2          "))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 180)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_file != 180)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_file != 207)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].smp_in_file != 207)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_max != 10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].phys_max != -10000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].phys_min != -5000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].phys_min != -30000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_max != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_max != 1000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].dig_max != 3000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].dig_max != 3000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].dig_min != -1000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].dig_min != -1000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].dig_min != 1000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].dig_min != 1000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[0].smp_in_datarecord != 20)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.signalparam[1].smp_in_datarecord != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[0].physdimension, "uVxxxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr1.signalparam[1].physdimension, ".C0xxxxx"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[0].prefilter, "qwerty   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[1].prefilter, "zxcvbn   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[0].transducer, "asdfgh   ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.signalparam[1].transducer, "poklhyg  ", 9))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 0, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 0)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2436,7 +2484,7 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 6000000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2446,7 +2494,7 @@ int main(void)
 
   if(strcmp(annot.annotation, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_get_annotation(hdl1, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 11700000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -2456,56 +2504,13 @@ int main(void)
 
   if(strcmp(annot.annotation, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 1, 500, EDFSEEK_SET) == 500)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 500, EDFSEEK_SET) == 500)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 0, 333, EDFSEEK_SET) == 333)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 333, EDFSEEK_SET) == 333)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfseek(hdl, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 20, EDFSEEK_SET) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
-
-  for(i=0; i<20; i++)
-  {
-//    printf("%i:   %f   %i\n", i, dbuf[i], -5100 + (i * 800));
-
-    if(i == 0)
-    {
-      if(dblcmp_lim(dbuf[i], -5000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(i == 19)
-    {
-      if(dblcmp_lim(dbuf[i], 10000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.0075))  JUMP_TO_EXIT_ERROR_PROC
-  }
-
-  if(edfseek(hdl, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
-
-  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
-
-  for(i=0; i<23; i++)
-  {
-//    printf("%i:   %f   %i\n", i, dbuf[i], -30100 + (i * 909));
-
-    if(i == 0)
-    {
-      if(dblcmp_lim(dbuf[i], -30000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
-
-      continue;
-    }
-
-    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
-  }
-
-  edfrewind(hdl, 0);
-
-  if(edfread_physical_samples(hdl, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -2528,9 +2533,9 @@ int main(void)
     if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.0075))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  edfrewind(hdl, 1);
+  if(edfseek(hdl1, 1, 23, EDFSEEK_SET) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_physical_samples(hdl, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -2546,9 +2551,52 @@ int main(void)
     if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+  edfrewind(hdl1, 0);
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_physical_samples(hdl1, 0, 20, dbuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<20; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -5100 + (i * 800));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -5000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(i == 19)
+    {
+      if(dblcmp_lim(dbuf[i], 10000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp_lim(dbuf[i], -5100 + (i * 800), 0.0075))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  edfrewind(hdl1, 1);
+
+  if(edfread_physical_samples(hdl1, 1, 23, dbuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<23; i++)
+  {
+//    printf("%i:   %f   %i\n", i, dbuf[i], -30100 + (i * 909));
+
+    if(i == 0)
+    {
+      if(dblcmp_lim(dbuf[i], -30000, 0.00001))  JUMP_TO_EXIT_ERROR_PROC
+
+      continue;
+    }
+
+    if(dblcmp(dbuf[i], -30100 + (i * 909)))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfseek(hdl1, 0, 40, EDFSEEK_SET) != 40)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -2564,9 +2612,9 @@ int main(void)
     }
   }
 
-  if(edfseek(hdl, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 46, EDFSEEK_SET) != 46)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -2586,9 +2634,9 @@ int main(void)
       }
   }
 
-  if(edfseek(hdl, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 60, EDFSEEK_SET) != 60)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -2604,9 +2652,9 @@ int main(void)
     if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 1, 69, EDFSEEK_SET) != 69)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 1, 69, EDFSEEK_SET) != 69)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -2629,7 +2677,7 @@ int main(void)
     if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 20)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -2645,7 +2693,7 @@ int main(void)
     if(ibuf[i] != -1010000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 23, ibuf) != 23)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<23; i++)
   {
@@ -2668,7 +2716,7 @@ int main(void)
     if(ibuf[i] != 990000 + (i * 105300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 80, ibuf) != 80)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<80; i++)
   {
@@ -2684,7 +2732,7 @@ int main(void)
     if(ibuf[i] != -1010000 + (i * 25300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfread_digital_samples(hdl, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 1, 92, ibuf) != 92)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<92; i++)
   {
@@ -2707,9 +2755,9 @@ int main(void)
     if(ibuf[i] != 990000 + (i * 25300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfseek(hdl, 0, 165, EDFSEEK_SET) != 165)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfseek(hdl1, 0, 165, EDFSEEK_SET) != 165)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfread_digital_samples(hdl, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfread_digital_samples(hdl1, 0, 20, ibuf) != 15)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<15; i++)
   {
@@ -2718,9 +2766,9 @@ int main(void)
     if(ibuf[i] != -1010000 + ((i + 65) * 25300))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
@@ -2857,9 +2905,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2877,9 +2925,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2897,9 +2945,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2917,9 +2965,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2933,9 +2981,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2953,9 +3001,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdr.handle))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfclose_file(hdr1.handle))  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2969,9 +3017,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -2985,9 +3033,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3001,9 +3049,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3017,9 +3065,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3033,9 +3081,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdr.handle))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfclose_file(hdr1.handle))  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3049,9 +3097,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3069,9 +3117,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3085,18 +3133,18 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.bdf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
     /****************************************/
 
@@ -3110,9 +3158,9 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
 
   /****************************************/
 
@@ -3126,89 +3174,89 @@ int main(void)
 
   fclose(fp);
 
-  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS) != 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF writing ******************************/
 
-  hdl = edfopen_file_writeonly("test2.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+  hdl1 = edfopen_file_writeonly("test2.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patient_additional(hdl, "Test"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patient_additional(hdl1, "Test"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_recording_additional(hdl, "tEST"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_recording_additional(hdl1, "tEST"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<100; i++)
   {
     dbuf[i] = 0;
   }
 
-  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF reading ******************************/
 
-  if(edfopen_file_readonly("test2.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test2.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.patient_additional, "Test", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.patient_additional, "Test", 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.recording_additional, "tEST", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.recording_additional, "tEST", 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF writing ******************************/
 
-  hdl = edfopen_file_writeonly("test3.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+  hdl1 = edfopen_file_writeonly("test3.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
 
-  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdl1 < 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_datarecord_duration(hdl, 77777))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_datarecord_duration(hdl1, 77777))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_subsecond_starttime(hdl, 1234000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_subsecond_starttime(hdl1, 1234000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_number_of_annotation_signals(hdl1, 3))  JUMP_TO_EXIT_ERROR_PROC
 
   char str_korea[]={0xeb,0x8c,0x80,0xed,0x95,0x9c,0xeb,0xaf,0xbc,0xea,0xb5,0xad,0x00};
 
@@ -3222,11 +3270,11 @@ int main(void)
 
     if(i != 0)
     {
-     if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+     if(edfwrite_annotation_latin1(hdl1, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
     }
     else
     {
-     if(edfwrite_annotation_utf8(hdl, l_tmp, -1LL, str_accented))  JUMP_TO_EXIT_ERROR_PROC
+     if(edfwrite_annotation_utf8(hdl1, l_tmp, -1LL, str_accented))  JUMP_TO_EXIT_ERROR_PROC
     }
 
     l_tmp += 3333LL;
@@ -3235,43 +3283,43 @@ int main(void)
 
     if(i != 0)
     {
-      if(edfwrite_annotation_latin1(hdl, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
+      if(edfwrite_annotation_latin1(hdl1, l_tmp, -1LL, str))  JUMP_TO_EXIT_ERROR_PROC
     }
     else
     {
-     if(edfwrite_annotation_utf8(hdl, l_tmp, -1LL, str_korea))  JUMP_TO_EXIT_ERROR_PROC
+     if(edfwrite_annotation_utf8(hdl1, l_tmp, -1LL, str_korea))  JUMP_TO_EXIT_ERROR_PROC
     }
   }
 
-  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_samplefrequency(hdl1, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_maximum(hdl1, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_physical_minimum(hdl1, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_maximum(hdl1, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_digital_minimum(hdl1, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_startdatetime(hdl, 2008, 12, 31, 23, 59, 58))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_startdatetime(hdl1, 2008, 12, 31, 23, 59, 58))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientname(hdl, "Ãlpha"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientname(hdl1, "Ãlpha"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patientcode(hdl, "Bràvó"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patientcode(hdl1, "Bràvó"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_gender(hdl1, 1))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_birthdate(hdl, 2005, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_birthdate(hdl1, 2005, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_patient_additional(hdl, "Charlie"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_patient_additional(hdl1, "Charlie"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_admincode(hdl, "Dëlta"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_admincode(hdl1, "Dëlta"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_technician(hdl, "Ëcho"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_technician(hdl1, "Ëcho"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_equipment(hdl, "Foxtröt"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_equipment(hdl1, "Foxtröt"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_recording_additional(hdl, "Golf"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_recording_additional(hdl1, "Golf"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<100; i++)
   {
@@ -3280,67 +3328,67 @@ int main(void)
 
   for(i=0; i<40; i++)
   {
-    if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    if(edfwrite_physical_samples(hdl1, dbuf))  JUMP_TO_EXIT_ERROR_PROC
   }
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
 /********************************** EDF reading ******************************/
 
-  if(edfopen_file_readonly("test3.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test3.edf", &hdr1, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<60; i++)
   {
-    if(edf_get_annotation(hdl, i * 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_get_annotation(hdl1, i * 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
 //    printf("i: %i   onset: %lli\n", i, annot.onset);
 
     if(annot.onset != 10000000LL * (i + 1))  JUMP_TO_EXIT_ERROR_PROC
 
-    if(edf_get_annotation(hdl, i * 2 + 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
+    if(edf_get_annotation(hdl1, i * 2 + 1, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
     if(annot.onset != 10000000LL * (i + 1) + 3333000LL)  JUMP_TO_EXIT_ERROR_PROC
 
 //    printf("i: %i   onset: %lli\n", i * 2 + 1, annot.onset);
   }
 
-  if(strncmp(hdr.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.gender, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.gender, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.birthdate, "04 jul 2005", 11))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.birthdate, "04 jul 2005", 11))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.patient_additional, "Charlie", 7))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.patient_additional, "Charlie", 7))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.admincode, "Delta", 5))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.admincode, "Delta", 5))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.technician, "Echo", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.technician, "Echo", 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.equipment, "Foxtrot", 7))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.equipment, "Foxtrot", 7))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.recording_additional, "Golf", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr1.recording_additional, "Golf", 4))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
   /****************************************/
 
@@ -3360,24 +3408,24 @@ int main(void)
 
 /********************************** EDF reading ******************************/
 
-  if(edfopen_file_readonly("test3.edf", &hdr, EDFLIB_DO_NOT_READ_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfopen_file_readonly("test3.edf", &hdr1, EDFLIB_DO_NOT_READ_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
-  hdl = hdr.handle;
+  hdl1 = hdr1.handle;
 
-  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.starttime_subsecond!=1234000LL)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr1.starttime_subsecond!=1234000LL)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfclose_file(hdl))
+  if(edfclose_file(hdl1))
   {
-    hdl = -1;
+    hdl1 = -1;
 
     JUMP_TO_EXIT_ERROR_PROC
   }
 
-  hdl = -1;
+  hdl1 = -1;
 
   /****************************************/
 
@@ -3391,9 +3439,9 @@ int main(void)
 
 OUT_ERROR:
 
-  if(hdl >= 0)
+  if(hdl1 >= 0)
   {
-    edfclose_file(hdl);
+    edfclose_file(hdl1);
   }
 
   free(ibuf);
