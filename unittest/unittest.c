@@ -174,6 +174,8 @@ int main(void)
 
   hdl1 = -1;
 
+  if(edf_update_header(hdl2, &hdr2))  JUMP_TO_EXIT_ERROR_PROC
+
   if(!edf_update_header(hdl2, &hdr2))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl2))

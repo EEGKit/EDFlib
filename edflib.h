@@ -91,7 +91,19 @@
  * This will limit the timeresolution to 100 nanoSeconds. To calculate the amount of seconds, divide
  * the timevalue by 10000000 or use the macro EDFLIB_TIME_DIMENSION which is declared in edflib.h.
  * The following variables use this scaling when you open a file in read mode: "file_duration", "starttime_subsecond" and "onset".
+ *
+ * EDFlib and thread-safety
+ * ========================
+ * The following functions are always MT-unsafe:
+ * edfopen_file_readonly()   (race condition)
+ * edfclose_file()           (race condition)
+ * edflib_get_handle()       (race condition)
+ * edf_update_header()       (race condition)
+ *
+ * When writing to and reading from the same file, all EDFlib functions are MT-unsafe (race condition).
+ *
  */
+
 
 /* compile with options "-D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE" */
 
