@@ -438,7 +438,7 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
 
 int edf_update_header(int handle, struct edf_hdr_struct *edfhdr)
 {
-  int i, channel;
+  int i, channel, err=1;
 
   char str[16];
 
@@ -452,7 +452,12 @@ int edf_update_header(int handle, struct edf_hdr_struct *edfhdr)
 
   struct edfhdrblock *w_hdr = hdrlist[r_hdr->write_hdl];
 
-  if(w_hdr==NULL)
+  if(w_hdr!=NULL)
+  {
+    if(!strcmp(r_hdr->path, w_hdr->path))  err = 0;
+  }
+
+  if(err)
   {
     r_hdr->write_hdl = -1;
 
@@ -469,7 +474,7 @@ int edf_update_header(int handle, struct edf_hdr_struct *edfhdr)
 
   edfhdr->datarecords_in_file = r_hdr->datarecords;
 
-  if(r_hdr->datarecords<1)
+  if(r_hdr->datarecords < 1)
   {
     return -4;
   }
