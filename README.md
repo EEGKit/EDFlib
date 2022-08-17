@@ -22,6 +22,8 @@ For example:
 
 Compilation has been tested using GCC on Linux, Mingw-w64 on Windows, and LLVM GCC on OS X (Yosemite).
 
+Big-endian systems are not supported.
+
 To understand how to use the library, read the comments in `edflib.h`.
 
 

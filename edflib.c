@@ -242,8 +242,38 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
 
   struct edfhdrblock *hdr;
 
+  union
+  {
+    char four[4];
+    int one;
+  } byte_order_test_var;
 
   memset(edfhdr, 0, sizeof(struct edf_hdr_struct));
+
+  /* avoid surprises! */
+  if((sizeof(char)      != 1) ||
+     (sizeof(short)     != 2) ||
+     (sizeof(int)       != 4) ||
+     (sizeof(long long) != 8) ||
+     (sizeof(float)     != 4) ||
+     (sizeof(double)    != 8))
+  {
+    edfhdr->filetype = EDFLIB_ARCH_ERROR;
+
+    return -1;
+  }
+
+  /* check endianness! */
+  byte_order_test_var.one = 0x03020100;
+  if((byte_order_test_var.four[0] != 0) ||
+     (byte_order_test_var.four[1] != 1) ||
+     (byte_order_test_var.four[2] != 2) ||
+     (byte_order_test_var.four[3] != 3))
+  {
+    edfhdr->filetype = EDFLIB_ARCH_ERROR;
+
+    return -1;
+  }
 
   if((read_annotations_mode<0)||(read_annotations_mode>2))
   {
@@ -3519,6 +3549,32 @@ int edfopen_file_writeonly(const char *path, int filetype, int number_of_signals
 
   struct edfhdrblock *hdr;
 
+  union
+  {
+    char four[4];
+    int one;
+  } byte_order_test_var;
+
+  /* avoid surprises! */
+  if((sizeof(char)      != 1) ||
+     (sizeof(short)     != 2) ||
+     (sizeof(int)       != 4) ||
+     (sizeof(long long) != 8) ||
+     (sizeof(float)     != 4) ||
+     (sizeof(double)    != 8))
+  {
+    return EDFLIB_ARCH_ERROR;
+  }
+
+  /* check endianness! */
+  byte_order_test_var.one = 0x03020100;
+  if((byte_order_test_var.four[0] != 0) ||
+     (byte_order_test_var.four[1] != 1) ||
+     (byte_order_test_var.four[2] != 2) ||
+     (byte_order_test_var.four[3] != 3))
+  {
+    return EDFLIB_ARCH_ERROR;
+  }
 
   if((filetype!=EDFLIB_FILETYPE_EDFPLUS)&&(filetype!=EDFLIB_FILETYPE_BDFPLUS))
   {
