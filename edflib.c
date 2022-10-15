@@ -100,7 +100,6 @@ struct edfhdrblock{
         FILE      *file_hdl;
         char      path[1024];
         int       writemode;
-        int       write_hdl;
         char      version[32];
         char      patient[81];
         char      recording[81];
@@ -167,7 +166,7 @@ static int edf_files_open=0;
 
 static struct edfhdrblock *hdrlist[EDFLIB_MAXFILES];
 
-static struct edfhdrblock * edflib_check_edf_file(FILE *, int *, int);
+static struct edfhdrblock * edflib_check_edf_file(FILE *, int *);
 static int edflib_is_integer_number(char *);
 static int edflib_is_number(char *);
 static long long edflib_get_long_duration(char *);
@@ -235,8 +234,7 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
 {
   int i, j,
       channel,
-      edf_error,
-      write_hdl=-1;
+      edf_error;
 
   FILE *file;
 
@@ -295,12 +293,6 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
     {
       if(!(strcmp(path, hdrlist[i]->path)))
       {
-        if(hdrlist[i]->writemode)
-        {
-          write_hdl = i;
-          continue;
-        }
-
         edfhdr->filetype = EDFLIB_FILE_ALREADY_OPENED;
 
         return -1;
@@ -316,7 +308,7 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
     return -1;
   }
 
-  hdr = edflib_check_edf_file(file, &edf_error, write_hdl);
+  hdr = edflib_check_edf_file(file, &edf_error);
   if(hdr==NULL)
   {
     edfhdr->filetype = edf_error;
@@ -460,60 +452,6 @@ int edfopen_file_readonly(const char *path, struct edf_hdr_struct *edfhdr, int r
     edfhdr->signalparam[i].dig_max = hdr->edfparam[channel].dig_max;
     edfhdr->signalparam[i].dig_min = hdr->edfparam[channel].dig_min;
     edfhdr->signalparam[i].smp_in_datarecord = hdr->edfparam[channel].smp_per_record;
-  }
-
-  return 0;
-}
-
-
-int edf_update_header(int handle, struct edf_hdr_struct *edfhdr)
-{
-  int i, channel, err=1;
-
-  char str[16];
-
-  if(handle < 0)  return -1;
-
-  struct edfhdrblock *r_hdr = hdrlist[handle];
-
-  if(r_hdr==NULL)  return -2;
-
-  if(r_hdr->write_hdl < 0)  return -3;
-
-  struct edfhdrblock *w_hdr = hdrlist[r_hdr->write_hdl];
-
-  if(w_hdr!=NULL)
-  {
-    if(!strcmp(r_hdr->path, w_hdr->path))  err = 0;
-  }
-
-  if(err)
-  {
-    r_hdr->write_hdl = -1;
-
-    fseeko(r_hdr->file_hdl, 236LL, SEEK_SET);
-    fread(str, 8, 1, r_hdr->file_hdl);
-    str[8] = 0;
-
-    r_hdr->datarecords = edflib_atoi_nonlocalized(str);
-  }
-  else
-  {
-    r_hdr->datarecords = w_hdr->datarecords;
-  }
-
-  edfhdr->datarecords_in_file = r_hdr->datarecords;
-
-  if(r_hdr->datarecords < 1)
-  {
-    return -4;
-  }
-
-  for(i=0; i<edfhdr->edfsignals; i++)
-  {
-    channel = r_hdr->mapped_signals[i];
-
-    edfhdr->signalparam[i].smp_in_file = r_hdr->edfparam[channel].smp_per_record * r_hdr->datarecords;
   }
 
   return 0;
@@ -1185,7 +1123,7 @@ int edf_get_annotation(int handle, int n, struct edf_annotation_struct *annot)
 }
 
 
-static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_error, int wr_hdl)
+static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_error)
 {
   int i, j, p, r=0, n,
       dotposition,
@@ -1613,20 +1551,12 @@ static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_erro
   }
 
   edfhdr->datarecords = edflib_atoi_nonlocalized(scratchpad);
-  if((edfhdr->datarecords<1) && (wr_hdl<0))
+  if(edfhdr->datarecords<1)
   {
     *edf_error = EDFLIB_FILE_CONTAINS_FORMAT_ERRORS;
     free(edf_hdr);
     free(edfhdr);
     return NULL;
-  }
-
-  if(wr_hdl>=0)
-  {
-    if(hdrlist[wr_hdl] != NULL)
-    {
-      edfhdr->datarecords = hdrlist[wr_hdl]->datarecords;
-    }
   }
 
 /********************* DATARECORD DURATION *************************************/
@@ -2599,16 +2529,13 @@ static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_erro
   edfhdr->hdrsize = edfhdr->edfsignals * 256 + 256;
 
   fseeko(inputfile, 0LL, SEEK_END);
-  if(wr_hdl<0)
+  if(ftello(inputfile)!=(edfhdr->recordsize * edfhdr->datarecords + edfhdr->hdrsize))
   {
-    if(ftello(inputfile)!=(edfhdr->recordsize * edfhdr->datarecords + edfhdr->hdrsize))
-    {
-      *edf_error = EDFLIB_FILE_CONTAINS_FORMAT_ERRORS;
-      free(edf_hdr);
-      free(edfhdr->edfparam);
-      free(edfhdr);
-      return NULL;
-    }
+    *edf_error = EDFLIB_FILE_CONTAINS_FORMAT_ERRORS;
+    free(edf_hdr);
+    free(edfhdr->edfparam);
+    free(edfhdr);
+    return NULL;
   }
 
   n = 0;
