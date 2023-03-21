@@ -54,7 +54,7 @@
  * https://www.ti.com/general/docs/lit/getliterature.tsp?baseLiteratureNumber=sbaa042
  *
  * note: An EDF file usually contains multiple so-called datarecords. One datarecord usually has a duration of one second (this is the default but it is not mandatory!).
- * In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely choosen but, if possible, use values from
+ * In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely chosen but, if possible, use values from
  * 0.1 to 1 second for easier handling. Just make sure that the total size of one datarecord, expressed in bytes, does not exceed 10MByte (15MBytes for BDF(+)).
  *
  * The RECOMMENDATION of a maximum datarecordsize of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
@@ -66,16 +66,16 @@
  * When writing the header info, EDFlib will assume you are using Latin1 encoding and it will automatically convert
  * characters with accents, umlauts, tilde, etc. to their "normal" equivalent without the accent/umlaut/tilde/etc.
  * in order to create a valid EDF file.
- * The description of an EDF+ annotation on the other hand, is always encoded in UTF-8 (which is foreward compatible with ASCII).
+ * The description of an EDF+ annotation on the other hand, is always encoded in UTF-8 (which is forward compatible with ASCII).
  *
  * The samplefrequency of a signal is calculated as follows: sf = (smp_in_datarecord * EDFLIB_TIME_DIMENSION) / datarecord_duration
  *
  * Annotation signals
  * ==================
  *
- * EDF+ and BDF+ store the annotations in one or more signals (in order to be backwards compatibel with EDF and BDF).
+ * EDF+ and BDF+ store the annotations in one or more signals (in order to be backwards compatible with EDF and BDF).
  * The numbering of the signals in the file is zero based (starts at 0). Signals used for annotations are skipped by EDFlib.
- * This means that the annotationsignal(s) in the file are hided.
+ * This means that the annotationsignal(s) in the file are hidden.
  * Use the function edf_get_annotation() to get the annotations.
  *
  * So, when a file contains 5 signals and the third signal is an annotations signal, the library will
@@ -328,7 +328,7 @@ EDFLIB_API int edfclose_file(int handle);
  * returns -1 in case of an error, 0 on success
  * this function MUST be called when you are finished reading or writing
  * This function is required after reading or writing. Failing to do so will cause
- * unnessecary memory usage and in case of writing it will cause a corrupted and incomplete file
+ * unnecessary memory usage and in case of writing it will cause a corrupted and incomplete file
  */
 
 EDFLIB_API int edflib_version(void);
@@ -534,7 +534,7 @@ EDFLIB_API int edf_set_technician(int handle, const char *technician);
  */
 
 EDFLIB_API int edf_set_equipment(int handle, const char *equipment);
-/* Sets the name of the equipment used during the aquisition. equipment is a pointer to a null-terminated ASCII-string.
+/* Sets the name of the equipment used during the acquisition. equipment is a pointer to a null-terminated ASCII-string.
  * Returns 0 on success, otherwise -1
  * This function is optional and can be called only after opening a file in writemode
  * and before the first sample write action
