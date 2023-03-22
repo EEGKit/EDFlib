@@ -69,7 +69,7 @@ read the document "Coding Schemes Used with Data Converters" (PDF):
 http://www.ti.com/general/docs/lit/getliterature.tsp?baseLiteratureNumber=sbaa042
 
 An EDF file usually contains multiple so-called datarecords. One datarecord usually has a duration of one second (this is the default but it is not mandatory!).
-In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely choosen but, if possible, use values from
+In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely chosen but, if possible, use values from
 0.1 to 1 second for easier handling. Just make sure that the total size of one datarecord, expressed in bytes, does not exceed 10MByte (15MBytes for BDF(+)).
 
 The RECOMMENDATION of a maximum datarecordsize of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
