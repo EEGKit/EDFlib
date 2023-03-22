@@ -13,7 +13,7 @@ In order to use EDFlib, copy these two files to your project.
 Include the file `edflib.h` in every source file from where you want to access the library.
 
 Don't forget to tell your compiler that it must compile and link `edflib.c` (add it to
-your makefile or buildscript). `edflib.c` needs to be compiled with the options
+your makefile or build script). `edflib.c` needs to be compiled with the options
 `-D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE`.
 
 For example:
@@ -34,9 +34,9 @@ To build the examples: `make`
 Each "generator" example creates an EDF+ or BDF+ file with sample signals.
 
 `test_generator` shows how to use most of the functions provided by the library and generates an
-EDF+ or BDF+ testfile with several sample signals.
+EDF+ or BDF+ test file with several sample signals.
 
-`sine_generator` creates a BDF+ file containing the signal "sine", a 1 Hz sinoidal waveform with a
+`sine_generator` creates a BDF+ file containing the signal "sine", a 1 Hz sinusoidal waveform with a
 sample frequency of 2048 Hz.
 
 `sweep_generator` creates a linear or logarithmic sweep through a range of frequencies in EDF+ or
@@ -72,9 +72,9 @@ An EDF file usually contains multiple so-called datarecords. One datarecord usua
 In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely chosen but, if possible, use values from
 0.1 to 1 second for easier handling. Just make sure that the total size of one datarecord, expressed in bytes, does not exceed 10MByte (15MBytes for BDF(+)).
 
-The RECOMMENDATION of a maximum datarecordsize of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
+The RECOMMENDATION of a maximum datarecord size of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
 Using DOS and fast (near) pointers (16-bit pointers), the maximum allocatable block of memory was 64KByte.
-This is not a concern anymore so the maximum datarecord size now is limited to 10MByte for EDF(+) and 15MByte for BDF(+). This helps to accommodate for higher samplingrates
+This is not a concern anymore so the maximum datarecord size now is limited to 10MByte for EDF(+) and 15MByte for BDF(+). This helps to accommodate for higher sampling rates
 used by modern Analog to Digital Converters.
 
 EDF header character encoding: The EDF specification says that only ASCII characters are allowed.
