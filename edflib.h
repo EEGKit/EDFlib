@@ -57,9 +57,9 @@
  * In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely chosen but, if possible, use values from
  * 0.1 to 1 second for easier handling. Just make sure that the total size of one datarecord, expressed in bytes, does not exceed 10MByte (15MBytes for BDF(+)).
  *
- * The RECOMMENDATION of a maximum datarecordsize of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
+ * The RECOMMENDATION of a maximum datarecord size of 61440 bytes in the EDF and EDF+ specification was useful in the time people were still using DOS as their main operating system.
  * Using DOS and fast (near) pointers (16-bit pointers), the maximum allocatable block of memory was 64KByte.
- * This is not a concern anymore so the maximum datarecord size now is limited to 10MByte for EDF(+) and 15MByte for BDF(+). This helps to accommodate for higher samplingrates
+ * This is not a concern anymore so the maximum datarecord size now is limited to 10MByte for EDF(+) and 15MByte for BDF(+). This helps to accommodate for higher sampling rates
  * used by modern Analog to Digital Converters.
  *
  * EDF header character encoding: The EDF specification says that only (printable) ASCII characters are allowed.
@@ -68,7 +68,7 @@
  * in order to create a valid EDF file.
  * The description of an EDF+ annotation on the other hand, is always encoded in UTF-8 (which is forward compatible with ASCII).
  *
- * The samplefrequency of a signal is calculated as follows: sf = (smp_in_datarecord * EDFLIB_TIME_DIMENSION) / datarecord_duration
+ * The sample frequency of a signal is calculated as follows: sf = (smp_in_datarecord * EDFLIB_TIME_DIMENSION) / datarecord_duration
  *
  * Annotation signals
  * ==================
@@ -86,9 +86,9 @@
  * How the library stores time values
  * ==================================
  *
- * To avoid rounding errors, the library stores some timevalues in variables of type long long int.
- * In order not to lose the subsecond precision, all timevalues are scaled with a scaling factor: 10000000.
- * This will limit the timeresolution to 100 nanoSeconds. To calculate the amount of seconds, divide
+ * To avoid rounding errors, the library stores some time values in variables of type long long int.
+ * In order not to lose the sub-second precision, all time values are scaled with a scaling factor: 10000000.
+ * This will limit the time resolution to 100 nanoseconds. To calculate the amount of seconds, divide
  * the timevalue by 10000000 or use the macro EDFLIB_TIME_DIMENSION which is declared in edflib.h.
  * The following variables use this scaling when you open a file in read mode: "file_duration", "starttime_subsecond" and "onset".
  *
@@ -212,15 +212,15 @@ struct edf_param_struct{         /* this structure contains all the relevant EDF
   double phys_min;               /* physical minimum, usually the minimum input of the ADC */
   int    dig_max;                /* digital maximum, usually the maximum output of the ADC, cannot not be higher than 32767 for EDF or 8388607 for BDF */
   int    dig_min;                /* digital minimum, usually the minimum output of the ADC, cannot not be lower than -32768 for EDF or -8388608 for BDF */
-  int    smp_in_datarecord;      /* number of samples of this signal in a datarecord, if the datarecord has a duration of one second (default), then it equals the samplerate */
+  int    smp_in_datarecord;      /* number of samples of this signal in a datarecord, if the datarecord has a duration of one second (default), then it equals the sample rate */
   char   physdimension[9];       /* physical dimension (uV, bpm, mA, etc.), null-terminated string */
   char   prefilter[81];          /* null-terminated string */
   char   transducer[81];         /* null-terminated string */
       };
 
 struct edf_annotation_struct{                           /* this structure is used for annotations */
-        long long onset;                                /* onset time of the event, expressed in units of 100 nanoSeconds and relative to the start of the file */
-        long long duration_l;                           /* duration time, expressed in units of 100 nanoSeconds, a value of -10000000 means unused (duration not present) */
+        long long onset;                                /* onset time of the event, expressed in units of 100 nanoseconds and relative to the start of the file */
+        long long duration_l;                           /* duration time, expressed in units of 100 nanoseconds, a value of -10000000 means unused (duration not present) */
         char duration[16];                              /* duration time, this is a null-terminated ASCII text-string */
         char annotation[EDFLIB_MAX_ANNOTATION_LEN + 1]; /* description of the event in UTF-8, this is a null terminated string */
        };
@@ -229,16 +229,16 @@ struct edf_hdr_struct{            /* this structure contains all the relevant ED
   int       handle;               /* a handle (identifier) used to distinguish the different files */
   int       filetype;             /* 0: EDF, 1: EDF+, 2: BDF, 3: BDF+, a negative number means an error */
   int       edfsignals;           /* number of EDF signals in the file, annotation channels are NOT included */
-  long long file_duration;        /* duration of the file expressed in units of 100 nanoSeconds */
+  long long file_duration;        /* duration of the file expressed in units of 100 nanoseconds */
   int       startdate_day;
   int       startdate_month;
   int       startdate_year;
-  long long starttime_subsecond;  /* starttime offset expressed in units of 100 nanoSeconds. Is always less than 10000000 (one second). Only used by EDF+ and BDF+ */
+  long long starttime_subsecond;  /* starttime offset expressed in units of 100 nanoseconds. Is always less than 10000000 (one second). Only used by EDF+ and BDF+ */
   int       starttime_second;
   int       starttime_minute;
   int       starttime_hour;
-  char      patient[81];                                  /* null-terminated string, contains patientfield of header, is always empty when filetype is EDFPLUS or BDFPLUS */
-  char      recording[81];                                /* null-terminated string, contains recordingfield of header, is always empty when filetype is EDFPLUS or BDFPLUS */
+  char      patient[81];                                  /* null-terminated string, contains patient field of header, is always empty when filetype is EDFPLUS or BDFPLUS */
+  char      recording[81];                                /* null-terminated string, contains recording field of header, is always empty when filetype is EDFPLUS or BDFPLUS */
   char      patientcode[81];                              /* null-terminated string, is always empty when filetype is EDF or BDF */
   char      gender[16];                                   /* null-terminated string, is always empty when filetype is EDF or BDF */
   char      birthdate[16];                                /* null-terminated string, is always empty when filetype is EDF or BDF */
@@ -251,7 +251,7 @@ struct edf_hdr_struct{            /* this structure contains all the relevant ED
   char      technician[81];                               /* null-terminated string, is always empty when filetype is EDF or BDF */
   char      equipment[81];                                /* null-terminated string, is always empty when filetype is EDF or BDF */
   char      recording_additional[81];                     /* null-terminated string, is always empty when filetype is EDF or BDF */
-  long long datarecord_duration;                          /* duration of a datarecord expressed in units of 100 nanoSeconds */
+  long long datarecord_duration;                          /* duration of a datarecord expressed in units of 100 nanoseconds */
   long long datarecords_in_file;                          /* number of datarecords in the file */
   long long annotations_in_file;                          /* number of annotations in the file */
   struct edf_param_struct signalparam[EDFLIB_MAXSIGNALS]; /* array of structs which contain the relevant signal parameters */
@@ -271,7 +271,7 @@ EDFLIB_API int edfopen_file_readonly(const char *path, struct edf_hdr_struct *ed
  *                                       been found which contains the description "Recording ends"
  *   EDFLIB_READ_ALL_ANNOTATIONS         all annotations will be read immediately
 
- * returns 0 on success, in case of an error it returns -1 and an errorcode will be set in the member "filetype" of struct edf_hdr_struct
+ * returns 0 on success, in case of an error it returns -1 and an error code will be set in the member "filetype" of struct edf_hdr_struct
  * This function is required if you want to read a file
  */
 
@@ -372,7 +372,7 @@ EDFLIB_API int edfopen_file_writeonly_with_params(const char *path, int filetype
  * warning, an already existing file with the same name will be silently overwritten without advance warning!
  * path is a null-terminated string containing the path and name of the file
  * filetype must be EDFLIB_FILETYPE_EDFPLUS or EDFLIB_FILETYPE_BDFPLUS
- * Sets the samplefrequency of all signals. (In reality, it sets the number of samples per datarecord which equals the samplefrequency only when
+ * Sets the sample frequency of all signals. (In reality, it sets the number of samples per datarecord which equals the sample frequency only when
  * the datarecords have a duration of 1 second)
  * Sets the physical maximum of all signals to phys_max_min.
  * Sets the physical minimum of all signals to -phys_max_min.
@@ -390,12 +390,12 @@ EDFLIB_API int edfopen_file_writeonly_with_params(const char *path, int filetype
  */
 
 EDFLIB_API int edf_set_samplefrequency(int handle, int edfsignal, int samplefrequency);
-/* Sets the samplefrequency of signal edfsignal. In reality, it sets the number of samples in a datarecord
- * which equals the samplefrequency only when the datarecords have a duration of 1 second.
- * The effective samplefrequency is: samplefrequency / datarecord duration
+/* Sets the sample frequency of signal edfsignal. In reality, it sets the number of samples in a datarecord
+ * which equals the sample frequency only when the datarecords have a duration of 1 second.
+ * The effective sample frequency is: samplefrequency / datarecord duration
  * Returns 0 on success, otherwise -1
  * This function is required for every signal and can be called only after opening a
- * file in writemode and before the first sample write action
+ * file in write mode and before the first sample write action
  */
 
 EDFLIB_API int edf_set_physical_maximum(int handle, int edfsignal, double phys_max);
@@ -404,7 +404,7 @@ EDFLIB_API int edf_set_physical_maximum(int handle, int edfsignal, double phys_m
  * Must be un-equal to physical minimum
  * Returns 0 on success, otherwise -1
  * This function is required for every signal and can be called only after opening a
- * file in writemode and before the first sample write action
+ * file in write mode and before the first sample write action
  */
 
 EDFLIB_API int edf_set_physical_minimum(int handle, int edfsignal, double phys_min);
@@ -414,7 +414,7 @@ EDFLIB_API int edf_set_physical_minimum(int handle, int edfsignal, double phys_m
  * Must be un-equal to physical maximum
  * Returns 0 on success, otherwise -1
  * This function is required for every signal and can be called only after opening a
- * file in writemode and before the first sample write action
+ * file in write mode and before the first sample write action
  */
 
 EDFLIB_API int edf_set_digital_maximum(int handle, int edfsignal, int dig_max);
@@ -423,7 +423,7 @@ EDFLIB_API int edf_set_digital_maximum(int handle, int edfsignal, int dig_max);
  * Usually it's the extreme output of the ADC
  * Must be higher than digital minimum
  * Returns 0 on success, otherwise -1
- * This function is required for every signal and can be called only after opening a file in writemode
+ * This function is required for every signal and can be called only after opening a file in write mode
  * and before the first sample write action
  */
 
@@ -434,7 +434,7 @@ EDFLIB_API int edf_set_digital_minimum(int handle, int edfsignal, int dig_min);
  * Usually this will be (-(dig_max + 1))
  * Must be lower than digital maximum
  * Returns 0 on success, otherwise -1
- * This function is required for every signal and can be called only after opening a file in writemode
+ * This function is required for every signal and can be called only after opening a file in write mode
  * and before the first sample write action
  */
 
@@ -443,14 +443,14 @@ EDFLIB_API int edf_set_label(int handle, int edfsignal, const char *label);
  * label is a pointer to a NULL-terminated ASCII-string containing the label (name) of the signal edfsignal
  * Returns 0 on success, otherwise -1
  * This function is recommended for every signal when you want to write a file
- * and can be called only after opening a file in writemode and before the first sample write action
+ * and can be called only after opening a file in write mode and before the first sample write action
  */
 
 EDFLIB_API int edf_set_prefilter(int handle, int edfsignal, const char *prefilter);
 /* Sets the prefilter of signal edfsignal ("HP:0.1Hz", "LP:75Hz N:50Hz", etc.).
  * prefilter is a pointer to a NULL-terminated ASCII-string containing the prefilter text of the signal edfsignal
  * Returns 0 on success, otherwise -1
- * This function is optional and can be called only after opening a file in writemode and before
+ * This function is optional and can be called only after opening a file in write mode and before
  * the first sample write action
  */
 
@@ -467,7 +467,7 @@ EDFLIB_API int edf_set_physical_dimension(int handle, int edfsignal, const char 
  * phys_dim is a pointer to a NULL-terminated ASCII-string containing the physical dimension of the signal edfsignal
  * Returns 0 on success, otherwise -1
  * This function is recommended for every signal when you want to write a file
- * and can be called only after opening a file in writemode and before the first sample write action
+ * and can be called only after opening a file in write mode and before the first sample write action
  */
 
 EDFLIB_API int edf_set_startdatetime(int handle, int startdate_year, int startdate_month, int startdate_day,
@@ -477,7 +477,7 @@ EDFLIB_API int edf_set_startdatetime(int handle, int startdate_year, int startda
  * hour: 0 - 23, minute: 0 - 59, second: 0 - 59
  * If not called, the library will use the system date and time at runtime
  * Returns 0 on success, otherwise -1
- * This function is optional and can be called only after opening a file in writemode
+ * This function is optional and can be called only after opening a file in write mode
  * and before the first sample write action
  * Note: for anonymization purposes, the consensus is to use 1985-01-01 00:00:00 for the startdate and starttime.
  */
@@ -702,7 +702,7 @@ EDFLIB_API int edf_set_number_of_annotation_signals(int handle, int annot_signal
  */
 
 EDFLIB_API int edf_set_subsecond_starttime(int handle, int subsecond);
-/* Sets the subsecond starttime expressed in units of 100 nanoSeconds
+/* Sets the subsecond starttime expressed in units of 100 nanoseconds
  * Valid range is 0 to 9999999 inclusive. Default is 0
  * This function is optional and can be called only after opening a file in writemode
  * and before the first sample write action
