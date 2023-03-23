@@ -106,7 +106,7 @@ struct edfhdrblock{
         char      patient[81];
         char      recording[81];
         char      plus_patientcode[81];
-        char      plus_gender[16];
+        char      plus_sex[16];
         char      plus_birthdate[16];
         int       plus_birthdate_day;
         int       plus_birthdate_month;
@@ -392,7 +392,8 @@ EDFLIB_API int edfopen_file_readonly(const char *path, struct edf_hdr_struct *ed
   else
   {
     edflib_strlcpy(edfhdr->patientcode, hdr->plus_patientcode, 81);
-    edflib_strlcpy(edfhdr->gender, hdr->plus_gender, 16);
+    edflib_strlcpy(edfhdr->sex, hdr->plus_sex, 16);
+    edflib_strlcpy(edfhdr->gender, hdr->plus_sex, 16);
     edflib_strlcpy(edfhdr->birthdate, hdr->plus_birthdate, 16);
     edfhdr->birthdate_day = hdr->plus_birthdate_day;
     edfhdr->birthdate_month = hdr->plus_birthdate_month;
@@ -2214,15 +2215,15 @@ static struct edfhdrblock * edflib_check_edf_file(FILE *inputfile, int *edf_erro
 
     if(edfhdr->patient[p]=='M')
     {
-      edflib_strlcpy(edfhdr->plus_gender, "Male", 16);
+      edflib_strlcpy(edfhdr->plus_sex, "Male", 16);
     }
     if(edfhdr->patient[p]=='F')
     {
-      edflib_strlcpy(edfhdr->plus_gender, "Female", 16);
+      edflib_strlcpy(edfhdr->plus_sex, "Female", 16);
     }
     if(edfhdr->patient[p]=='X')
     {
-      edfhdr->plus_gender[0] = 0;
+      edfhdr->plus_sex[0] = 0;
     }
     for(i=0; i<(80-p);i++)
     {
@@ -4659,13 +4660,13 @@ static int edflib_write_edf_header(struct edfhdrblock *hdr)
     p += fprintf(file, "X ");
   }
 
-  if(hdr->plus_gender[0]=='M')
+  if(hdr->plus_sex[0]=='M')
   {
     fputc('M', file);
   }
   else
   {
-    if(hdr->plus_gender[0]=='F')
+    if(hdr->plus_sex[0]=='F')
     {
       fputc('F', file);
     }
@@ -5343,7 +5344,7 @@ EDFLIB_API int edf_set_patientcode(int handle, const char *patientcode)
 }
 
 
-EDFLIB_API int edf_set_gender(int handle, int gender)
+EDFLIB_API int edf_set_sex(int handle, int sex)
 {
   if((handle<0)||(handle>=EDFLIB_MAXFILES))  return -1;
 
@@ -5353,20 +5354,26 @@ EDFLIB_API int edf_set_gender(int handle, int gender)
 
   if(hdrlist[handle]->datarecords)  return -1;
 
-  if((gender<0)||(gender>1))  return -1;
+  if((sex<0)||(sex>1))  return -1;
 
-  if(gender)
+  if(sex)
   {
-    hdrlist[handle]->plus_gender[0] = 'M';
+    hdrlist[handle]->plus_sex[0] = 'M';
   }
   else
   {
-    hdrlist[handle]->plus_gender[0] = 'F';
+    hdrlist[handle]->plus_sex[0] = 'F';
   }
 
-  hdrlist[handle]->plus_gender[1] = 0;
+  hdrlist[handle]->plus_sex[1] = 0;
 
   return 0;
+}
+
+
+EDFLIB_API int edf_set_gender(int handle, int sex)
+{
+  return edf_set_sex(handle, sex);
 }
 
 

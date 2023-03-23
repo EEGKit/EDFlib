@@ -240,7 +240,8 @@ struct edf_hdr_struct{            /* this structure contains all the relevant ED
   char      patient[81];                                  /* null-terminated string, contains patient field of header, is always empty when filetype is EDFPLUS or BDFPLUS */
   char      recording[81];                                /* null-terminated string, contains recording field of header, is always empty when filetype is EDFPLUS or BDFPLUS */
   char      patientcode[81];                              /* null-terminated string, is always empty when filetype is EDF or BDF */
-  char      gender[16];                                   /* null-terminated string, is always empty when filetype is EDF or BDF */
+  char      sex[16];                                      /* null-terminated string, is always empty when filetype is EDF or BDF */
+  char      gender[16];  /* DEPRECATED!! use "sex" */
   char      birthdate[16];                                /* null-terminated string, is always empty when filetype is EDF or BDF */
   int       birthdate_day;                                /* 1 - 31 */
   int       birthdate_month;                              /* 1 - 12 */
@@ -496,8 +497,16 @@ EDFLIB_API int edf_set_patientcode(int handle, const char *patientcode);
  * and before the first sample write action
  */
 
-EDFLIB_API int edf_set_gender(int handle, int gender);
-/* Sets the gender. 1 is male, 0 is female.
+EDFLIB_API int edf_set_sex(int handle, int sex);
+/* Sets the sex. 1 is male, 0 is female.
+ * Returns 0 on success, otherwise -1
+ * This function is optional and can be called only after opening a file in writemode
+ * and before the first sample write action
+ */
+
+EDFLIB_API int edf_set_gender(int handle, int sex);
+/* DEPRECATED!! USE edf_set_sex()
+ * Sets the sex. 1 is male, 0 is female.
  * Returns 0 on success, otherwise -1
  * This function is optional and can be called only after opening a file in writemode
  * and before the first sample write action
