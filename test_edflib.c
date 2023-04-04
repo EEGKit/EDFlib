@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     {
       case EDFLIB_MALLOC_ERROR                : printf("\nmalloc error\n\n");
                                                 break;
-      case EDFLIB_NO_SUCH_FILE_OR_DIRECTORY   : printf("\ncan not open file, no such file or directory\n\n");
+      case EDFLIB_NO_SUCH_FILE_OR_DIRECTORY   : printf("\ncannot open file, no such file or directory\n\n");
                                                 break;
       case EDFLIB_FILE_CONTAINS_FORMAT_ERRORS : printf("\nthe file is not EDF(+) or BDF(+) compliant\n"
                                                        "(it contains format errors)\n\n");
