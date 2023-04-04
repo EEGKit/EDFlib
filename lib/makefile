@@ -4,11 +4,8 @@
 #
 # email: teuniz@protonmail.com
 #
+#
 # GNU/Linux only for now.
-#
-# sudo cp -v libedf.so.1.2.4 /lib64/.
-#
-# sudo ldconfig
 #
 # https://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html
 #
