@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
   double *buf;
 
-  struct edf_hdr_struct hdr;
+  edflib_hdr_t hdr;
 
 
   if(argc!=3)
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   printf("transducer: %s\n", hdr.signalparam[channel].transducer);
   printf("samplefrequency: %f\n", ((double)hdr.signalparam[channel].smp_in_datarecord / (double)hdr.datarecord_duration) * EDFLIB_TIME_DIMENSION);
 
-  struct edf_annotation_struct annot;
+  edflib_annotation_t annot;
 
   printf("\n");
 

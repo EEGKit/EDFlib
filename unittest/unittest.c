@@ -70,9 +70,9 @@ int main(void)
           unsigned char four[4];
         } var;
 
-  struct edf_hdr_struct hdr;
+  edflib_hdr_t hdr;
 
-  struct edf_annotation_struct annot;
+  edflib_annotation_t annot;
 
   FILE *fp=NULL;
 
