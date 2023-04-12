@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
   printf("patient: %s\n", hdr.patient);
   printf("recording: %s\n", hdr.recording);
   printf("patientcode: %s\n", hdr.patientcode);
-  printf("gender: %s\n", hdr.gender);
+  printf("sex: %s\n", hdr.sex);
   printf("birthdate: %s\n", hdr.birthdate);
   printf("patient_name: %s\n", hdr.patient_name);
   printf("patient_additional: %s\n", hdr.patient_additional);

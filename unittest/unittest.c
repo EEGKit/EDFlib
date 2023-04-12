@@ -807,7 +807,8 @@ int main(void)
 
   if(strcmp(hdr.patientcode, "01234"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.sex, "Male"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.gender, "Male"))  JUMP_TO_EXIT_ERROR_PROC  /* DEPRECATED */
 
   if(strcmp(hdr.birthdate, "04 jul 2010"))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -3259,7 +3260,7 @@ int main(void)
 
   if(edf_set_patientcode(hdl, "Bràvó"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_gender(hdl, 1))  JUMP_TO_EXIT_ERROR_PROC  /* DEPRECATED */
 
   if(edf_set_birthdate(hdl, 2005, 7, 4))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -3319,7 +3320,8 @@ int main(void)
 
   if(strncmp(hdr.patientcode, "Bravo", 5))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strncmp(hdr.gender, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr.sex, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC
+  if(strncmp(hdr.gender, "Male", 4))  JUMP_TO_EXIT_ERROR_PROC  /* DEPRECATED */
 
   if(strncmp(hdr.birthdate, "04 jul 2005", 11))  JUMP_TO_EXIT_ERROR_PROC
 
