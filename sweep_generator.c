@@ -199,7 +199,7 @@ int main(void)
   remove_trailing_zeros(str);
   edf_set_patientname(hdl, str);
 
-  edfwrite_annotation_latin1(hdl, 0LL, -1LL, "Recording starts");
+  edfwrite_annotation_latin1_hr(hdl, 0LL, -1LL, "Recording starts");
 
   sine_1 = 0.0;
 
@@ -252,15 +252,15 @@ int main(void)
     {
       sprintf(str, "%fHz", freq);
       remove_trailing_zeros(str);
-      edfwrite_annotation_latin1(hdl, j * 10000LL, -1LL, str);
+      edfwrite_annotation_latin1_hr(hdl, j * 1000000LL, -1LL, str);
     }
   }
 
   sprintf(str, "%fHz", freq);
   remove_trailing_zeros(str);
-  edfwrite_annotation_latin1(hdl, j * 10000LL, -1LL, str);
+  edfwrite_annotation_latin1_hr(hdl, j * 1000000LL, -1LL, str);
 
-  edfwrite_annotation_latin1(hdl, fileduration * 10000LL, -1LL, "Recording ends");
+  edfwrite_annotation_latin1_hr(hdl, fileduration * 1000000LL, -1LL, "Recording ends");
 
   edfclose_file(hdl);
 

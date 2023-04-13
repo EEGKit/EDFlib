@@ -3,7 +3,7 @@
 *
 * Author: Teunis van Beelen
 *
-* Copyright (C) 2017- 2021 Teunis van Beelen
+* Copyright (C) 2017- 2023 Teunis van Beelen
 *
 * Email: teuniz@protonmail.com
 *
@@ -35,6 +35,12 @@
 
 
 #define  JUMP_TO_EXIT_ERROR_PROC   {line = __LINE__; goto OUT_ERROR;}
+
+#define EDFLIB_ANNOTATION_BYTES  (120)
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 
 int dblcmp(double, double);
@@ -410,11 +416,11 @@ int main(void)
 
   if(edf_set_datarecord_duration(hdl, 13000))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1_hr(hdl, 0, -1, "Recording starts"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 9000, 1000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1_hr(hdl, 900000, 100000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edfwrite_annotation_latin1(hdl, 13000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edfwrite_annotation_latin1_hr(hdl, 1300000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
   {
@@ -886,7 +892,7 @@ int main(void)
 
   if(annot.onset != 9000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(annot.duration, "0.1000"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(annot.duration, "0.100000"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.duration_l != 1000000LL)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -1582,9 +1588,12 @@ int main(void)
   fseek(fp, 0xad, SEEK_SET);
 
   fputc('.', fp);
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x803, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x815, SEEK_SET);
+#endif
   fwrite("0.12", 4, 1, fp);
 
   fclose(fp);
@@ -1598,9 +1607,12 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x803, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x815, SEEK_SET);
+#endif
   fwrite("0.131", 5, 1, fp);
 
   fclose(fp);
@@ -1614,13 +1626,19 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x803, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x815, SEEK_SET);
+#endif
   fwrite("0.130", 5, 1, fp);
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x802, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x814, SEEK_SET);
+#endif
   fputc('0', fp);
 
   fclose(fp);
@@ -1634,9 +1652,12 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x802, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x814, SEEK_SET);
+#endif
   fputc('-', fp);
 
   fclose(fp);
@@ -1650,13 +1671,19 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x802, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x814, SEEK_SET);
+#endif
   fputc('+', fp);
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x750, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x75e, SEEK_SET);
+#endif
   fputc(0, fp);
 
   fclose(fp);
@@ -1670,9 +1697,12 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x750, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x75e, SEEK_SET);
+#endif
   fputc(0x14, fp);
 
   fputc(1, fp);
@@ -1688,9 +1718,12 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x751, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x75f, SEEK_SET);
+#endif
   fputc(0, fp);
 
   fclose(fp);
@@ -1868,9 +1901,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x7ac, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x7be, SEEK_SET);
+#endif
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -1921,9 +1957,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x7d4, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x7e6, SEEK_SET);
+#endif
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -1962,9 +2001,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x958, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x97c, SEEK_SET);
+#endif
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2003,9 +2045,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0x980, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0x9a4, SEEK_SET);
+#endif
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2056,9 +2101,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xb04, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xb3a, SEEK_SET);
+#endif
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2097,9 +2145,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xb2c, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xb62, SEEK_SET);
+#endif
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2150,9 +2201,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xcb0, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xcf8, SEEK_SET);
+#endif
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2191,9 +2245,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xcd8, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xd20, SEEK_SET);
+#endif
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2244,9 +2301,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xe5c, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xeb6, SEEK_SET);
+#endif
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2285,9 +2345,12 @@ int main(void)
   fp = fopen("test.edf", "rb");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-
+#if (EDFLIB_ANNOTATION_BYTES == 114)
   fseek(fp, 0xe84, SEEK_SET);
-
+#endif
+#if (EDFLIB_ANNOTATION_BYTES == 120)
+  fseek(fp, 0xede, SEEK_SET);
+#endif
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2441,7 +2504,7 @@ int main(void)
 
   if(annot.onset != 6000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(annot.duration, "0.2000"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(annot.duration, "0.200000"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.duration_l != 2000000LL)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -3240,7 +3303,7 @@ int main(void)
     }
     else
     {
-     if(edfwrite_annotation_utf8(hdl, l_tmp, -1LL, str_korea))  JUMP_TO_EXIT_ERROR_PROC
+     if(edfwrite_annotation_utf8_hr(hdl, l_tmp * 100LL, -1LL, str_korea))  JUMP_TO_EXIT_ERROR_PROC
     }
   }
 

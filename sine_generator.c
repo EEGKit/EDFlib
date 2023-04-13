@@ -209,9 +209,9 @@ int main(void)
     }
   }
 
-  edfwrite_annotation_latin1(hdl, 0LL, -1LL, "Recording starts");
+  edfwrite_annotation_latin1_hr(hdl, 0LL, -1LL, "Recording starts");
 
-  edfwrite_annotation_latin1(hdl, 200000LL, -1LL, "Recording ends");
+  edfwrite_annotation_latin1_hr(hdl, 20000000LL, -1LL, "Recording ends");
 
   edfclose_file(hdl);
 

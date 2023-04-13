@@ -681,17 +681,17 @@ int main(void)
     }
   }
 
-  edfwrite_annotation_latin1(hdl, 0LL, -1LL, "Recording starts");
+  edfwrite_annotation_latin1_hr(hdl, 0LL, -1LL, "Recording starts");
 
-  edfwrite_annotation_latin1(hdl, 2980000LL, -1LL, "Test 1");
+  edfwrite_annotation_latin1_hr(hdl, 298000000LL, -1LL, "Test 1");
 
-  edfwrite_annotation_latin1(hdl, 2940000LL + (long long)((10000.0 / SMP_FREQ) * (SMP_FREQ - 2)), -1LL, "pulse 1");
+  edfwrite_annotation_latin1_hr(hdl, 294000000LL + (long long)((1000000.0 / SMP_FREQ) * (SMP_FREQ - 2)), -1LL, "pulse 1");
 
-  edfwrite_annotation_latin1(hdl, 2950000LL + (long long)((10000.0 / SMP_FREQ_2) * (SMP_FREQ_2 - 2)), -1LL, "pulse 2");
+  edfwrite_annotation_latin1_hr(hdl, 295000000LL + (long long)((1000000.0 / SMP_FREQ_2) * (SMP_FREQ_2 - 2)), -1LL, "pulse 2");
 
-  edfwrite_annotation_latin1(hdl, 2960000LL + (long long)((10000.0 / SMP_FREQ_3) * (SMP_FREQ_3 - 2)), -1LL, "pulse 3");
+  edfwrite_annotation_latin1_hr(hdl, 296000000LL + (long long)((1000000.0 / SMP_FREQ_3) * (SMP_FREQ_3 - 2)), -1LL, "pulse 3");
 
-  edfwrite_annotation_latin1(hdl, FILE_DURATION * 10000LL, -1LL, "Recording ends");
+  edfwrite_annotation_latin1_hr(hdl, FILE_DURATION * 1000000LL, -1LL, "Recording ends");
 
   edfclose_file(hdl);
 
