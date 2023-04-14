@@ -420,6 +420,8 @@ int main(void)
 
   if(edfwrite_annotation_latin1_hr(hdl, 900000, 100000, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
+  if(edfwrite_annotation_utf8_hr(hdl, 9123456, 1123456, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
+
   if(edfwrite_annotation_latin1_hr(hdl, 1300000, -1, "Recording ends"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<20; i++)
@@ -836,7 +838,7 @@ int main(void)
 
   if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.annotations_in_file != 3)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.annotations_in_file != 4)  JUMP_TO_EXIT_ERROR_PROC
 
   if(strcmp(hdr.signalparam[0].label, "trace1          "))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -899,6 +901,16 @@ int main(void)
   if(strcmp(annot.annotation, "Test 1"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edf_get_annotation(hdl, 2, &annot))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.onset != 91234560)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.duration, "1.123456"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(annot.duration_l != 11234560LL)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(annot.annotation, "Test 2"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_get_annotation(hdl, 3, &annot))  JUMP_TO_EXIT_ERROR_PROC
 
   if(annot.onset != 13000000)  JUMP_TO_EXIT_ERROR_PROC
 
