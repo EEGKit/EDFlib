@@ -24,7 +24,7 @@ Compilation has been tested using GCC on Linux, Mingw-w64 on Windows, and LLVM G
 
 Big-endian systems are not supported.
 
-To understand how to use the library, read the comments in `edflib.h`.
+Documentation is here: http://www.teuniz.net/edflib/doc/edflib_8h.html
 
 
 ## Examples
