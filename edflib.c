@@ -67,11 +67,15 @@
 
 #endif
 
-/* max size of annotationtext */
+/* max length of annotation's description in bytes
+ * if you change this value, make sure that the new value + 80 is a multiple of six
+ * changing this value will break the unittest
+ */
 #define EDFLIB_WRITE_MAX_ANNOTATION_LEN  (40)
 
-/* bytes in datarecord for EDF annotations, must be an integer multiple of three and two */
-#define EDFLIB_ANNOTATION_BYTES  (120)
+/* number of bytes in datarecord for the annotations track, must be a multiple of six
+   those 80 bytes are used for the datarecord's timestamp, the annotation's onset time and duration */
+#define EDFLIB_ANNOTATION_BYTES  (EDFLIB_WRITE_MAX_ANNOTATION_LEN + 80)
 
 /* for writing only */
 #define EDFLIB_MAX_ANNOTATION_CHANNELS  (64)
