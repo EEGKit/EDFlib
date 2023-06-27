@@ -877,7 +877,7 @@ EDFLIB_API int edf_set_admincode(int handle, const char *admincode);
 EDFLIB_API int edf_set_technician(int handle, const char *technician);
 
 /**
- * Sets the equipments brand and/or model<br>
+ * Sets the equipment brand and/or model<br>
  * This function is optional and can be called only after opening a file in writemode and<br>
  * before the first sample write action.
  *
@@ -885,7 +885,7 @@ EDFLIB_API int edf_set_technician(int handle, const char *technician);
  * File handle.
  *
  * @param[in] equipment
- * A pointer to a NULL-terminated ASCII-string containing the equipments brand and/or model<br>
+ * A pointer to a NULL-terminated ASCII-string containing the equipment brand and/or model<br>
  * used for the recording.
  *
  * @return
