@@ -101,9 +101,9 @@
  *
  * When accessing EDFlib from different threads, use a mutex.<br>
  *
- * For more info about the EDF and EDF+ format, visit: http://edfplus.info/specs/<br>
+ * For more info about the EDF and EDF+ format, visit: https://edfplus.info/specs/<br>
  *
- * For more info about the BDF and BDF+ format, visit: http://www.teuniz.net/edfbrowser/bdfplus%20format%20description.html<br>
+ * For more info about the BDF and BDF+ format, visit: https://www.teuniz.net/edfbrowser/bdfplus%20format%20description.html<br>
  *
  */
 
