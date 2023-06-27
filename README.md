@@ -24,7 +24,7 @@ Compilation has been tested using GCC on Linux, Mingw-w64 on Windows, and LLVM G
 
 Big-endian systems are not supported.
 
-Documentation is here: http://www.teuniz.net/edflib/doc/edflib_8h.html
+Documentation is here: https://www.teuniz.net/edflib/doc/edflib_8h.html
 
 
 ## Examples
@@ -42,7 +42,7 @@ sample frequency of 2048 Hz.
 `sweep_generator` creates a linear or logarithmic sweep through a range of frequencies in EDF+ or
 BDF+ format.
 
-Use EDFbrowser to view these files: http://www.teuniz.net/edfbrowser/
+Use EDFbrowser to view these files: https://www.teuniz.net/edfbrowser/
 
 `test_edflib <filename> <signalnumber>` will print the properties of the EDF/BDF header, the
 annotations, and the values of 200 samples of the chosen signal. For example, running
@@ -66,7 +66,7 @@ offset = (physical max / units per bit) - digital max
 For a better explanation about the relation between digital data and physical data,
 read the document "Coding Schemes Used with Data Converters" (PDF):
 
-http://www.ti.com/general/docs/lit/getliterature.tsp?baseLiteratureNumber=sbaa042
+https://www.ti.com/lit/pdf/sbaa042
 
 An EDF file usually contains multiple so-called datarecords. One datarecord usually has a duration of one second (this is the default but it is not mandatory!).
 In that case a file with a duration of five minutes contains 300 datarecords. The duration of a datarecord can be freely chosen but, if possible, use values from
