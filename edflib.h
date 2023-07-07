@@ -177,8 +177,8 @@
 #define EDFLIB_MALLOC_ERROR                 (-1)
 #define EDFLIB_NO_SUCH_FILE_OR_DIRECTORY    (-2)
 
-/* when this error occurs, try to open the file with EDFbrowser,
-   it will give you full details about the cause of the error. */
+/* when this error occurs, try to open the file with EDFbrowser (https://www.teuniz.net/edfbrowser/),
+   it will give you full details about the cause of the error. It can also fix most errors. */
 #define EDFLIB_FILE_CONTAINS_FORMAT_ERRORS  (-3)
 
 #define EDFLIB_MAXFILES_REACHED             (-4)
@@ -300,6 +300,9 @@ typedef struct edf_hdr_struct
  * @return
  * 0 on success, in case of an error it returns -1 and an error code will be set in the member "filetype" of edfhdr.
  * This function is required if you want to read a file
+ *
+ * In case of a file format error (-3), try to open the file with EDFbrowser: https://www.teuniz.net/edfbrowser/
+ * It will give you full details about the cause of the error and it can also fix most errors.
  */
 EDFLIB_API int edfopen_file_readonly(const char *path, edflib_hdr_t *edfhdr, int read_annotations);
 
