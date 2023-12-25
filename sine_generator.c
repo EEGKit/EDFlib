@@ -145,6 +145,13 @@ int main(void)
     }
   }
 
+  if(edf_set_annot_chan_idx_pos(hdl, EDF_ANNOT_IDX_POS_START))
+  {
+    printf("error: edf_set_annot_chan_idx_pos()\n");
+
+    return(1);
+  }
+
   for(j=0; j<10; j++)
   {
     for(i=0; i<SMP_FREQ; i++)

@@ -378,13 +378,26 @@ int main(void)
 
   if(edf_set_equipment(hdl, "test generator"))
   {
-    printf("edf_set_equipment()\n");
+    printf("error: edf_set_equipment()\n");
 
     return(1);
   }
 
   edf_set_birthdate(hdl, 1969, 6, 30);
 
+  if(edf_set_annot_chan_idx_pos(hdl, EDF_ANNOT_IDX_POS_MIDDLE))
+  {
+    printf("error: edf_set_annot_chan_idx_pos()\n");
+
+    return(1);
+  }
+
+  if(edf_set_number_of_annotation_signals(hdl, 2))
+  {
+    printf("error: edf_set_number_of_annotation_signals()\n");
+
+    return(1);
+  }
 
   sine_1 = 0.0;
   sine_8 = 0.0;

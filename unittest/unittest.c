@@ -84,7 +84,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 124)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 125)  JUMP_TO_EXIT_ERROR_PROC
 
   ibuf = (int *)malloc(100 * sizeof(int));
   if(ibuf == NULL)
@@ -116,6 +116,182 @@ int main(void)
   {
     JUMP_TO_EXIT_ERROR_PROC;
   }
+
+/********************************** BDF writing ******************************/
+
+  hdl = edfopen_file_writeonly_with_params("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 17, 2799, 300000, "uV");
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_annot_chan_idx_pos(hdl, EDF_ANNOT_IDX_POS_START))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_number_of_annotation_signals(hdl, 3))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<2799; i++)
+  {
+    dbuf[i] = i;
+  }
+
+  for(i=0; i<25; i++)
+  {
+    for(j=0; j<17; j++)
+    {
+      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  for(i=0; i<75; i++)
+  {
+    snprintf(str, 4096, "test %i", i + 1);
+
+    if(edfwrite_annotation_latin1_hr(hdl, i * 1000000, -1, str))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+/********************************** BDF reading ******************************/
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 3)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 17)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 250000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 25)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 69975)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 8388607)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -8388608)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 2799)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "X"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.annotations_in_file != 75)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** BDF writing ******************************/
+
+  hdl = edfopen_file_writeonly_with_params("test.bdf", EDFLIB_FILETYPE_BDFPLUS, 17, 2799, 300000, "uV");
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_annot_chan_idx_pos(hdl, EDF_ANNOT_IDX_POS_MIDDLE))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_number_of_annotation_signals(hdl, 2))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<2799; i++)
+  {
+    dbuf[i] = i;
+  }
+
+  for(i=0; i<25; i++)
+  {
+    for(j=0; j<17; j++)
+    {
+      if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  for(i=0; i<50; i++)
+  {
+    snprintf(str, 4096, "test %i", i + 1);
+
+    if(edfwrite_annotation_latin1_hr(hdl, i * 1000000, -1, str))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+/********************************** BDF reading ******************************/
+
+  if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 3)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 17)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.file_duration != 250000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.datarecords_in_file != 25)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_file != 69975)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_max != 300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].phys_min != -300000)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_max != 8388607)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].dig_min != -8388608)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.signalparam[0].smp_in_datarecord != 2799)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.signalparam[0].physdimension, "uV      "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_name, "X"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.technician, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.equipment, ""))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.annotations_in_file != 50)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
 
 /********************************** EDF writing ******************************/
 
