@@ -171,6 +171,15 @@ int main(void)
 
 /********************************** BDF reading ******************************/
 
+  if(get_raw_header("test.bdf", &rawhdr))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(rawhdr.annot_chans != 3)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<rawhdr.annot_chans; i++)
+  {
+    if(rawhdr.annot_chans_idx_list[i] != i)  JUMP_TO_EXIT_ERROR_PROC
+  }
+
   if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
   hdl = hdr.handle;
@@ -258,6 +267,15 @@ int main(void)
   }
 
 /********************************** BDF reading ******************************/
+
+  if(get_raw_header("test.bdf", &rawhdr))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(rawhdr.annot_chans != 2)  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<rawhdr.annot_chans; i++)
+  {
+    if(rawhdr.annot_chans_idx_list[i] != i + 8)  JUMP_TO_EXIT_ERROR_PROC
+  }
 
   if(edfopen_file_readonly("test.bdf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
 
@@ -1902,6 +1920,36 @@ int main(void)
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
 
   fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 25, SEEK_SET);
+
+  fputc(0, fp);
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 20, SEEK_SET);
+
+  fputc(3, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  fp = fopen("test.edf", "r+b");
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 20, SEEK_SET);
+
+  fputc('e', fp);
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 32, SEEK_SET);
+
+  fputc(3, fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  fp = fopen("test.edf", "r+b");
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 32, SEEK_SET);
 
   fputc(0, fp);
 
