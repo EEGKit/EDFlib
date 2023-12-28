@@ -68,7 +68,6 @@
 #endif
 
 /* max length of annotation's description in bytes
- * changing this value will break the unittest
  */
 #define EDFLIB_WRITE_MAX_ANNOTATION_LEN  (40)
 

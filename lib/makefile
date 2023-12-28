@@ -18,7 +18,7 @@ CC := gcc
 CFLAGS := -O2 -fpic -fvisibility=hidden -std=gnu11 -Wall -Wextra -Wshadow -Wformat-nonliteral -Wformat-security \
           -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DEDFLIB_SO_DLL -DEDFLIB_BUILD
 LDLIBS := -lc
-TARGET := libedf.so.1.2.4
+TARGET := libedf.so.1.2.5
 
 LBITS := $(shell getconf LONG_BIT)
 

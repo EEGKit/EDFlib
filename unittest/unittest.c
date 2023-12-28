@@ -36,16 +36,29 @@
 
 #define  JUMP_TO_EXIT_ERROR_PROC   {line = __LINE__; goto OUT_ERROR;}
 
-#define EDFLIB_ANNOTATION_BYTES  (120)
-
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+typedef struct raw_header_struct
+{
+  int total_chans;
+  int regular_chans;
+  int annot_chans;
+  int regular_chans_idx_list[EDFLIB_MAXSIGNALS];
+  int annot_chans_idx_list[EDFLIB_MAXSIGNALS];
+  int bytes_in_datrec[EDFLIB_MAXSIGNALS];
+  int datrec_offset[EDFLIB_MAXSIGNALS];
+  int hdr_sz;
+  int datrecs;
+  int datrec_sz;
+  int sample_width;
+} raw_hdr_t;
 
 int dblcmp(double, double);
 int dblcmp_lim(double, double, double);
-
+int get_raw_header(const char *, raw_hdr_t *);
+int get_file_offset(int, int, int, raw_hdr_t *);
 
 
 int main(void)
@@ -67,6 +80,8 @@ int main(void)
   long long l_tmp;
 
   double *dbuf=NULL;
+
+  raw_hdr_t rawhdr;
 
   union {
           unsigned int one;
@@ -1776,12 +1791,17 @@ int main(void)
   fseek(fp, 0xad, SEEK_SET);
 
   fputc('.', fp);
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x803, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x815, SEEK_SET);
-#endif
+
+  fclose(fp);
+
+  if(get_raw_header("test.edf", &rawhdr))  JUMP_TO_EXIT_ERROR_PROC
+
+  fp = fopen("test.edf", "r+b");
+
+//  printf("offset: %i\n", get_file_offset(1, 0, 1, &rawhdr));
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr) + 1, SEEK_SET);
+
   fwrite("0.12", 4, 1, fp);
 
   fclose(fp);
@@ -1793,14 +1813,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "r+b");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x803, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x815, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr) + 1, SEEK_SET);
+
   fwrite("0.131", 5, 1, fp);
 
   fclose(fp);
@@ -1812,21 +1828,14 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "r+b");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x803, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x815, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr) + 1, SEEK_SET);
+
   fwrite("0.130", 5, 1, fp);
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x802, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x814, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr), SEEK_SET);
+
   fputc('0', fp);
 
   fclose(fp);
@@ -1838,14 +1847,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "r+b");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x802, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x814, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr), SEEK_SET);
+
   fputc('-', fp);
 
   fclose(fp);
@@ -1857,21 +1862,14 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "r+b");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x802, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x814, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 1, &rawhdr), SEEK_SET);
+
   fputc('+', fp);
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x750, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x75e, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 24, SEEK_SET);
+
   fputc(0, fp);
 
   fclose(fp);
@@ -1885,12 +1883,9 @@ int main(void)
   fp = fopen("test.edf", "r+b");
 
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x750, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x75e, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 24, SEEK_SET);
+
   fputc(0x14, fp);
 
   fputc(1, fp);
@@ -1904,14 +1899,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "r+b");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x751, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x75f, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(0, 2, 1, &rawhdr) + 25, SEEK_SET);
+
   fputc(0, fp);
 
   fclose(fp);
@@ -2087,14 +2078,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x7ac, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x7be, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 0, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2143,14 +2130,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x7d4, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x7e6, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(1, 1, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2187,14 +2170,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x958, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x97c, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(2, 0, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2231,14 +2210,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0x980, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0x9a4, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(2, 1, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2287,14 +2262,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xb04, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xb3a, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(3, 0, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2331,14 +2302,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xb2c, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xb62, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(3, 1, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2387,14 +2354,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xcb0, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xcf8, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(4, 0, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2431,14 +2394,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xcd8, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xd20, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(4, 1, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -2487,14 +2446,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xe5c, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xeb6, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(5, 0, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 40, 1, fp) != 1)
   {
     fclose(fp);
@@ -2531,14 +2486,10 @@ int main(void)
   /****************************************/
 
   fp = fopen("test.edf", "rb");
-
   if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
-#if (EDFLIB_ANNOTATION_BYTES == 114)
-  fseek(fp, 0xe84, SEEK_SET);
-#endif
-#if (EDFLIB_ANNOTATION_BYTES == 120)
-  fseek(fp, 0xede, SEEK_SET);
-#endif
+
+  fseek(fp, get_file_offset(5, 1, 0, &rawhdr), SEEK_SET);
+
   if(fread(str, 46, 1, fp) != 1)
   {
     fclose(fp);
@@ -3699,8 +3650,188 @@ int dblcmp_lim(double val1, double val2, double lim)
 }
 
 
+int get_raw_header(const char *f_path, raw_hdr_t *hdr)
+{
+  int i, err=-999;
 
+  char *buf=NULL,
+       str[128]={""};
 
+  FILE *f=NULL;
+
+  if((f_path == NULL) || (hdr == NULL))  return -1;
+
+  if(strlen(f_path) < 5)  return -2;
+
+  memset(hdr, 0, sizeof(raw_hdr_t));
+
+  buf = malloc(300);
+  if(buf==NULL)
+  {
+    err = -3;
+    goto EXIT_ERROR;
+  }
+
+  f = fopen(f_path, "rb");
+  if(f==NULL)
+  {
+    err = -4;
+    goto EXIT_ERROR;
+  }
+
+  if(fread(buf, 256, 1, f) != 1)
+  {
+    err = -11;
+    goto EXIT_ERROR;
+  }
+
+  if(!memcmp(buf, "0       ", 8))
+  {
+    hdr->sample_width = 2;
+  }
+  else if(!memcmp(buf, "\xff" "BIOSEMI", 8))
+    {
+      hdr->sample_width = 3;
+    }
+    else
+    {
+      err = -11;
+      goto EXIT_ERROR;
+    }
+
+  memcpy(str, buf+236, 8);
+  str[8] = 0;
+  hdr->datrecs = atoi(str);
+  if(hdr->datrecs < 1)
+  {
+    err = -12;
+    goto EXIT_ERROR;
+  }
+
+  memcpy(str, buf+252, 4);
+  str[4] = 0;
+  hdr->total_chans = atoi(str);
+  if((hdr->total_chans < 1) || (hdr->total_chans > EDFLIB_MAXSIGNALS))
+  {
+    err = -13;
+    goto EXIT_ERROR;
+  }
+
+  memcpy(str, buf+184, 8);
+  str[8] = 0;
+  hdr->hdr_sz = atoi(str);
+  if((hdr->hdr_sz < 512) || (hdr->hdr_sz != ((hdr->total_chans + 1) * 256)))
+  {
+    err = -14;
+    goto EXIT_ERROR;
+  }
+
+  free(buf);
+
+  buf = malloc(hdr->hdr_sz);
+  if(buf==NULL)
+  {
+    err = -15;
+    goto EXIT_ERROR;
+  }
+
+  rewind(f);
+
+  if(fread(buf, hdr->hdr_sz, 1, f) != 1)
+  {
+    err = -16;
+    goto EXIT_ERROR;
+  }
+
+  for(i=0; i<hdr->total_chans; i++)
+  {
+    hdr->bytes_in_datrec[i] = atoi(buf+256+(hdr->total_chans*216)+(i*8)) * hdr->sample_width;
+
+    hdr->datrec_offset[i] = hdr->datrec_sz;
+
+    hdr->datrec_sz += hdr->bytes_in_datrec[i];
+
+    if(hdr->sample_width == 2)
+    {
+      if(memcmp(buf+256+(i*16), "EDF Annotations ", 16))
+      {
+        hdr->regular_chans_idx_list[hdr->regular_chans] = i;
+
+        hdr->regular_chans++;
+      }
+      else
+      {
+        hdr->annot_chans_idx_list[hdr->annot_chans] = i;
+
+        hdr->annot_chans++;
+      }
+    }
+    else
+    {
+      if(memcmp(buf+256+(i*16), "BDF Annotations ", 16))
+      {
+        hdr->regular_chans_idx_list[hdr->regular_chans] = i;
+
+        hdr->regular_chans++;
+      }
+      else
+      {
+        hdr->annot_chans_idx_list[hdr->annot_chans] = i;
+
+        hdr->annot_chans++;
+      }
+    }
+  }
+
+  if(!hdr->annot_chans)
+  {
+    err = -17;
+    goto EXIT_ERROR;
+  }
+
+  if(f)  fclose(f);
+
+  free(buf);
+
+  return 0;
+
+EXIT_ERROR:
+
+  if(f)  fclose(f);
+
+  free(buf);
+
+  memset(hdr, 0, sizeof(raw_hdr_t));
+
+//  printf("get_raw_header(): error: %i\n", err);
+
+  return err;
+}
+
+/* datrec and chan are zero based
+ * is_annot: 0: regular channel 1: annotation channel
+ */
+int get_file_offset(int datrec, int idx, int is_annot, raw_hdr_t *hdr)
+{
+  if((datrec < 0) || (datrec >= hdr->datrecs))  return -1;
+
+  if(!hdr)  return -2;
+
+  if((is_annot < 0) || (is_annot > 1))  return -3;
+
+  if(is_annot)
+  {
+    if((idx < 0) || (idx >= hdr->annot_chans))  return -4;
+
+    return (hdr->hdr_sz + (datrec * hdr->datrec_sz) + (hdr->datrec_offset[hdr->annot_chans_idx_list[idx]]));
+  }
+  else
+  {
+    if((idx < 0) || (idx >= hdr->regular_chans))  return -5;
+
+    return (hdr->hdr_sz + (datrec * hdr->datrec_sz) + (hdr->datrec_offset[hdr->regular_chans_idx_list[idx]]));
+  }
+}
 
 
 
