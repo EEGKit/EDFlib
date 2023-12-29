@@ -73,7 +73,8 @@ int main(void)
       ival2;
 
   char *str=NULL,
-       *pbuf=NULL;
+       *pbuf=NULL,
+       *i3buf=NULL;
 
   short *sbuf=NULL;
 
@@ -83,13 +84,15 @@ int main(void)
 
   raw_hdr_t rawhdr;
 
-  union {
-          unsigned int one;
-          signed int one_signed;
-          unsigned short two[2];
-          signed short two_signed[2];
-          unsigned char four[4];
-        } var;
+  union
+  {
+    unsigned int one;
+    signed int one_signed;
+    unsigned short two[2];
+    signed short two_signed[2];
+    unsigned char four[4];
+    signed char four_signed[4];
+  } var;
 
   edflib_hdr_t hdr;
 
@@ -101,19 +104,19 @@ int main(void)
 
   if(edflib_version() != 125)  JUMP_TO_EXIT_ERROR_PROC
 
-  ibuf = (int *)malloc(100 * sizeof(int));
+  ibuf = (int *)malloc(50000 * sizeof(int));
   if(ibuf == NULL)
   {
     JUMP_TO_EXIT_ERROR_PROC;
   }
 
-  sbuf = (short *)malloc(100 * sizeof(short));
+  sbuf = (short *)malloc(50000 * sizeof(short));
   if(sbuf == NULL)
   {
     JUMP_TO_EXIT_ERROR_PROC;
   }
 
-  dbuf = (double *)malloc(10240 * sizeof(double));
+  dbuf = (double *)malloc(50000 * sizeof(double));
   if(dbuf == NULL)
   {
     JUMP_TO_EXIT_ERROR_PROC;
@@ -128,6 +131,12 @@ int main(void)
 
   pbuf = (char *)malloc(300 * sizeof(char));
   if(pbuf == NULL)
+  {
+    JUMP_TO_EXIT_ERROR_PROC;
+  }
+
+  i3buf = (char *)malloc(50000 * 3);
+  if(i3buf == NULL)
   {
     JUMP_TO_EXIT_ERROR_PROC;
   }
@@ -239,17 +248,63 @@ int main(void)
 
   if(edf_set_number_of_annotation_signals(hdl, 2))  JUMP_TO_EXIT_ERROR_PROC
 
-  for(i=0; i<2799; i++)
+  for(j=0; j<17; j++)
   {
-    dbuf[i] = i;
+    for(i=0; i<2799; i++)
+    {
+      dbuf[(j * 2799) + i] = i;
+    }
   }
 
-  for(i=0; i<25; i++)
+  for(i=0; i<5; i++)
   {
     for(j=0; j<17; j++)
     {
       if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
     }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(j=0; j<17; j++)
+  {
+    for(i=0; i<2799; i++)
+    {
+      ibuf[i + (j * 2799)] = (i * -27.96202667) + 0.5;
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    for(j=0; j<17; j++)
+    {
+      if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(j=0; j<17; j++)
+  {
+    for(i=0; i<2799; i++)
+    {
+      var.one_signed = (i * 27.96202667) + 0.5;
+
+      i3buf[(i * 3) + (j * 2799 * 3) + 0] = var.four[0];
+      i3buf[(i * 3) + (j * 2799 * 3) + 1] = var.four[1];
+      i3buf[(i * 3) + (j * 2799 * 3) + 2] = var.four[2];
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_digital_3byte_samples(hdl, i3buf))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   for(i=0; i<50; i++)
@@ -332,17 +387,69 @@ int main(void)
 
   if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
 
-  for(i=0; i<633; i++)
+  if(edf_set_annot_chan_idx_pos(hdl, EDF_ANNOT_IDX_POS_MIDDLE))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(j=0; j<65; j++)
   {
-    dbuf[i] = i;
+    for(i=0; i<633; i++)
+    {
+      dbuf[(j * 633) + i] = i;
+    }
   }
 
-  for(i=0; i<10; i++)
+  for(i=0; i<5; i++)
   {
     for(j=0; j<65; j++)
     {
       if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
     }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(j=0; j<65; j++)
+  {
+    for(i=0; i<633; i++)
+    {
+      ibuf[i + (j * 633)] = (i * -10.92266667) + 0.5;
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    for(j=0; j<65; j++)
+    {
+      if(edfwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_digital_samples(hdl, ibuf))  JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  for(j=0; j<65; j++)
+  {
+    for(i=0; i<633; i++)
+    {
+      sbuf[i + (j * 633)] = (i * -10.92266667) + 0.5;
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    for(j=0; j<65; j++)
+    {
+      if(edfwrite_digital_short_samples(hdl, sbuf))  JUMP_TO_EXIT_ERROR_PROC
+    }
+  }
+
+  for(i=0; i<5; i++)
+  {
+    if(edf_blockwrite_digital_short_samples(hdl, sbuf))  JUMP_TO_EXIT_ERROR_PROC
   }
 
   if(edfclose_file(hdl))
@@ -362,13 +469,13 @@ int main(void)
 
   if(hdr.edfsignals != 65)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.file_duration != 100000000)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.file_duration != 300000000)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.datarecord_duration != 10000000)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.datarecords_in_file != 10)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.datarecords_in_file != 30)  JUMP_TO_EXIT_ERROR_PROC
 
-  if(hdr.signalparam[0].smp_in_file != 6330)  JUMP_TO_EXIT_ERROR_PROC
+  if(hdr.signalparam[0].smp_in_file != 18990)  JUMP_TO_EXIT_ERROR_PROC
 
   if(hdr.signalparam[0].phys_max != 3000)  JUMP_TO_EXIT_ERROR_PROC
 
@@ -3638,6 +3745,7 @@ int main(void)
   free(dbuf);
   free(str);
   free(pbuf);
+  free(i3buf);
 
   return EXIT_SUCCESS;
 
@@ -3653,6 +3761,7 @@ OUT_ERROR:
   free(dbuf);
   free(str);
   free(pbuf);
+  free(i3buf);
 
   fprintf(stderr, "Error, line %i file %s\n", line, __FILE__);
 
