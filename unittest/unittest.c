@@ -1917,6 +1917,26 @@ int main(void)
 
   fputc('.', fp);
 
+  fseek(fp, 0x5fe, SEEK_SET);
+
+  fputc('z', fp);
+
+  fclose(fp);
+
+  if(edfopen_file_readonly("test.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS) == 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.filetype != EDFLIB_FILE_CONTAINS_FORMAT_ERRORS)  JUMP_TO_EXIT_ERROR_PROC
+
+  /****************************************/
+
+  fp = fopen("test.edf", "r+b");
+
+  if(fp == NULL)  JUMP_TO_EXIT_ERROR_PROC
+
+  fseek(fp, 0x5fe, SEEK_SET);
+
+  fputc(' ', fp);
+
   fclose(fp);
 
   if(get_raw_header("test.edf", &rawhdr))  JUMP_TO_EXIT_ERROR_PROC
