@@ -9,9 +9,9 @@
 #
 # https://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html
 #
-# nm -D libedf.so.1.2.4
+# nm -D libedf.so.1.2.5
 #
-# objdump -T libedf.so.1.2.4
+# objdump -T libedf.so.1.2.5
 #
 
 CC := gcc
