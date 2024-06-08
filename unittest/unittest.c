@@ -522,7 +522,7 @@ int main(void)
 
   if(edf_set_technician(hdl, "X.Fo_o"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(edf_set_equipment(hdl, "Xe_q"))  JUMP_TO_EXIT_ERROR_PROC
+  if(edf_set_equipment(hdl, "<- 80 chars ------------------------------------------------------------------->"))  JUMP_TO_EXIT_ERROR_PROC
 
   for(i=0; i<633; i++)
   {
@@ -582,7 +582,7 @@ int main(void)
 
   if(strcmp(hdr.technician, "X.Fo o"))  JUMP_TO_EXIT_ERROR_PROC
 
-  if(strcmp(hdr.equipment, "Xe q"))  JUMP_TO_EXIT_ERROR_PROC
+  if(strcmp(hdr.equipment, "<- 80 chars ------------------------------"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl))
   {
@@ -3566,6 +3566,124 @@ int main(void)
   if(strncmp(hdr.patient_additional, "Test", 4))  JUMP_TO_EXIT_ERROR_PROC
 
   if(strncmp(hdr.recording_additional, "tEST", 4))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test4.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patientcode(hdl, "<- 80 chars ------------------------------------------------------------------->"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_admincode(hdl, "<- 80 chars ------------------------------------------------------------------->"))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<100; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test4.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patientcode, "<- 80 chars ------------------------------------------------------------"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.admincode, "<- 80 chars ----------------------------------------"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF writing ******************************/
+
+  hdl = edfopen_file_writeonly("test4.edf", EDFLIB_FILETYPE_EDFPLUS, 1);
+
+  if(hdl < 0)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_samplefrequency(hdl, 0, 100))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_maximum(hdl, 0, 1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_physical_minimum(hdl, 0, -1000))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_maximum(hdl, 0, 32767))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_digital_minimum(hdl, 0, -32768))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_patient_additional(hdl, "<- 80 chars ------------------------------------------------------------------->"))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edf_set_recording_additional(hdl, "<- 80 chars ------------------------------------------------------------------->"))  JUMP_TO_EXIT_ERROR_PROC
+
+  for(i=0; i<100; i++)
+  {
+    dbuf[i] = 0;
+  }
+
+  if(edfwrite_physical_samples(hdl, dbuf))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(edfclose_file(hdl))
+  {
+    hdl = -1;
+
+    JUMP_TO_EXIT_ERROR_PROC
+  }
+
+  hdl = -1;
+
+/********************************** EDF reading ******************************/
+
+  if(edfopen_file_readonly("test4.edf", &hdr, EDFLIB_READ_ALL_ANNOTATIONS))  JUMP_TO_EXIT_ERROR_PROC
+
+  hdl = hdr.handle;
+
+  if(hdr.filetype != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(hdr.edfsignals != 1)  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.patient_additional, "<- 80 chars ----------------------------------------------------------- "))  JUMP_TO_EXIT_ERROR_PROC
+
+  if(strcmp(hdr.recording_additional, "<- 80 chars ----------------------------------------"))  JUMP_TO_EXIT_ERROR_PROC
 
   if(edfclose_file(hdl))
   {
