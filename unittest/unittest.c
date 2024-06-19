@@ -102,7 +102,7 @@ int main(void)
 
   setlocale(LC_ALL, "C");
 
-  if(edflib_version() != 126)  JUMP_TO_EXIT_ERROR_PROC
+  if(edflib_version() != 127)  JUMP_TO_EXIT_ERROR_PROC
 
   ibuf = (int *)malloc(50000 * sizeof(int));
   if(ibuf == NULL)
