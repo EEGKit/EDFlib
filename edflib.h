@@ -73,7 +73,7 @@
  * EDF+ and BDF+ store the annotations/events/triggers in one or more signals (in order to be backwards compatible with EDF and BDF)<br>
  * and they can appear anywhere in the list of signals.<br>
  * The numbering of the signals in the file is zero based (starts at 0). Signals used for annotations are skipped by EDFlib.<br>
- * This means that the annotationsignal(s) in the file are hidden.<br>
+ * This means that the annotation signal(s) in the file are hidden.<br>
  * Use the function edf_get_annotation() to get the annotations.<br>
  *
  * So, when a file contains 7 signals and the third and fifth signal are annotation signals, the library will<br>
@@ -1184,7 +1184,7 @@ EDFLIB_API int edf_set_datarecord_duration(int handle, int duration);
  * File handle.
  *
  * @param[in] duration
- * Datarecord duration expressed in units of 10 microSecond.
+ * Datarecord duration expressed in units of 1 microSecond.
  *
  * @return
  * 0 on success, otherwise -1.<br>
@@ -1231,7 +1231,7 @@ EDFLIB_API int edf_set_number_of_annotation_signals(int handle, int annot_signal
 EDFLIB_API int edf_set_subsecond_starttime(int handle, int subsecond);
 
 /**
- * Sets the preferred position of the annotation channels(s) before, after or in the middle of the list<br>
+ * Sets the preferred position of the annotation channel(s) before, after or in the middle of the list<br>
  * of regular signals. The default is to put them at the end (after the regular signals).<br>
  * This function is optional and can be called only after opening a file in writemode<br>
  * and before the first sample write action.<br>
