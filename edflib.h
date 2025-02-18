@@ -142,7 +142,7 @@
 #  if defined(EDFLIB_BUILD)
 #    if defined(_WIN32)
 #      define EDFLIB_API __declspec(dllexport)
-#    elif defined(__ELF__)
+#    elif defined(__ELF__) || defined(__MACH__)
 #      define EDFLIB_API __attribute__ ((visibility ("default")))
 #    else
 #      define EDFLIB_API
