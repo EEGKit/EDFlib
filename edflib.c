@@ -3430,16 +3430,11 @@ static void edflib_latin1_to_ascii(char *str, int len)
 
 static void edflib_latin12utf8(char *latin1_str, int len)
 {
-  int i, j;
-
-  unsigned char *str, tmp_str[512];
-
+  unsigned char *str, tmp_str[EDFLIB_WRITE_MAX_ANNOTATION_LEN * 6];
 
   str = (unsigned char *)latin1_str;
 
-  j = 0;
-
-  for(i=0; i<len; i++)
+  for(int i=0, j=0; i<len; i++)
   {
     if(str[i]==0)
     {
@@ -3473,7 +3468,7 @@ static void edflib_latin12utf8(char *latin1_str, int len)
     if(j>=len)  break;
   }
 
-  for(i=0; i<len; i++)
+  for(int i=0; i<len; i++)
   {
     str[i] = tmp_str[i];
   }
